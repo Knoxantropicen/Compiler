@@ -124,7 +124,7 @@ program
 	;
 
 blocks
-	: blocks block {$$ = new Node(blocks_t); $$->addBack($1); $$->addBack($2);}
+	: blocks block {$$ = new Node(blocks_t, $1, $2);}
 	| block {$$ = $1;}
 	;
 
@@ -144,17 +144,17 @@ type
 // declaration
 
 decl
-	: type decl_list ';' {$$ = new Node(decl_t); $$->addBack($1); $$->addBack($2);}
-	| type ';' {$$ = new Node(decl_t); $$->addBack($1);}
+	: type decl_list ';' {$$ = new Node(decl_t, $1, $2);}
+	| type ';' {$$ = new Node(decl_t, $1);}
 	;
 	
 decl_list
-	: decl_list ',' decl_init {$$ = new Node(decl_list_t); $$->addBack($1); $$->addBack($3);}
+	: decl_list ',' decl_init {$$ = new Node(decl_list_t, $1, $3);}
 	| decl_init {$$ = $1;}
 	;
 	
 decl_init
-	: decl_head '=' init_val {$$ = new Node(expr_t, "="); $$->addBack($1); $$->addBack($3);}
+	: decl_head '=' init_val {$$ = new Node(expr_t, "=", $1, $3);}
 	| decl_head {$$ = $1;}
 	;
 	
@@ -163,17 +163,17 @@ decl_head
 	;
 	
 var_decl_head
-	: var_decl_head '[' const_expr ']' {$$ = new Node(decl_head_t, $1->getCharP()); $$->addBack($1); $$->addBack($3); giv.g_cate = array_st; ++giv.g_dim;}
-	| var_decl_head '[' ']' {$$ = new Node(decl_head_t, $1->getCharP()); $$->addBack($1); giv.g_cate = array_st; ++giv.g_dim;}
+	: var_decl_head '[' const_expr ']' {$$ = new Node(decl_head_t, $1->getCharP(), $1, $3); giv.g_cate = array_st; ++giv.g_dim;}
+	| var_decl_head '[' ']' {$$ = new Node(decl_head_t, $1->getCharP(), $1); giv.g_cate = array_st; ++giv.g_dim;}
 	| ID {$$ = $1;}
 	;
 
 func_decl_head
 	: ID '(' {giv_stack.push(giv); giv = GIV(); SymbolTable * sub_table = new SymbolTable(); sub_table->setFather(curr_table); curr_table = sub_table; entered = true;}
-		param_list ')' {$$ = new Node(decl_head_t, $1->getCharP()); $$->addBack($1); $$->addBack($2);
+		param_list ')' {$$ = new Node(decl_head_t, $1->getCharP(), $1, $2);
 		funcInsertEntry($1);}
 	| ID '(' {giv_stack.push(giv); giv = GIV(); SymbolTable * sub_table = new SymbolTable(); sub_table->setFather(curr_table); curr_table = sub_table; entered = true;}
-		 ')' {$$ = new Node(decl_head_t, $1->getCharP()); $$->addBack($1);
+		 ')' {$$ = new Node(decl_head_t, $1->getCharP(), $1);
 		funcInsertEntry($1);}
 	;
 
@@ -183,38 +183,38 @@ init_val
 	;
 	
 init_val_list
-	: init_val_list ',' init_val {$$ = new Node(init_val_t); $$->addBack($1); $$->addBack($3);}
+	: init_val_list ',' init_val {$$ = new Node(init_val_t, $1, $3);}
 	| init_val {$$ = $1;}
 	;
 	
 param_list
-	: param_list ',' param {$$ = new Node(param_list_t); $$->addBack($1); $$->addBack($3); addParamList();}
+	: param_list ',' param {$$ = new Node(param_list_t, $1, $3); addParamList();}
 	| param {$$ = $1; addParamList();}
 	;
 	
 param
-	: type decl_init {$$ = new Node(param_t); $$->addBack($1); $$->addBack($2);}
-	| type {$$ = new Node(param_t); $$->addBack($1);}
+	: type decl_init {$$ = new Node(param_t, $1, $2);}
+	| type {$$ = new Node(param_t, $1);}
 	;
 
 // function
 
 func
-	: type func_decl_head compound_stmt {$$ = new Node(func_t); $$->addBack($1); $$->addBack($2); $$->addBack($3);
+	: type func_decl_head compound_stmt {$$ = new Node(func_t, $1, $2, $3);
 		funcSetEntry($2);}
-	| func_decl_head compound_stmt {$$ = new Node(func_t); $$->addBack(new Node(type_t, "integer")); giv.g_type = int_d; 
-		$$->addBack($1); $$->addBack($2); funcSetEntry($1);}
+	| func_decl_head compound_stmt {$$ = new Node(func_t, new Node(type_t, "integer"), $1, $2); giv.g_type = int_d; 
+		funcSetEntry($1);}
 	;
 
 // expression
 
 expr
-	: expr ',' assign_expr {$$ = new Node(expr_t, ","); $$->addBack($1); $$->addBack($3);}
+	: expr ',' assign_expr {$$ = new Node(expr_t, ",", $1, $3);}
 	| assign_expr {$$ = $1;}
 	;
 	
 assign_expr
-	: ID assign_op assign_expr {$$ = $2; $$->addBack($1); $$->addBack($3);}
+	: ID assign_op assign_expr {$$ = $2; $$->addChild($1); $$->addChild($3);}
 	| const_expr {$$ = $1;}
 	;
 	
@@ -223,79 +223,79 @@ const_expr
 	;
 
 ternary_expr
-	: or_expr '?' ternary_expr ':' ternary_expr {$$ = new Node(expr_t, "? :"); $$->addBack($1); $$->addBack($2); $$->addBack($3);}
+	: or_expr '?' ternary_expr ':' ternary_expr {$$ = new Node(expr_t, "? :", $1, $2, $3);}
 	| or_expr {$$ = $1;}
 	;	
 	
 or_expr
-	: or_expr OR and_expr {$$ = new Node(expr_t, "||"); $$->addBack($1); $$->addBack($3);}
+	: or_expr OR and_expr {$$ = new Node(expr_t, "||", $1, $3);}
 	| and_expr {$$ = $1;}
 	;
 	
 and_expr
-	: and_expr AND bit_or_expr {$$ = new Node(expr_t, "&&"); $$->addBack($1); $$->addBack($3);}
+	: and_expr AND bit_or_expr {$$ = new Node(expr_t, "&&", $1, $3);}
 	| bit_or_expr {$$ = $1;}
 	;
 
 bit_or_expr
-	: bit_or_expr '|' bit_xor_expr {$$ = new Node(expr_t, "|"); $$->addBack($1); $$->addBack($3);}
+	: bit_or_expr '|' bit_xor_expr {$$ = new Node(expr_t, "|", $1, $3);}
 	| bit_xor_expr {$$ = $1;}
 	;
 	
 bit_xor_expr
-	: bit_xor_expr '^' bit_and_expr {$$ = new Node(expr_t, "^"); $$->addBack($1); $$->addBack($3);}
+	: bit_xor_expr '^' bit_and_expr {$$ = new Node(expr_t, "^", $1, $3);}
 	| bit_and_expr {$$ = $1;}
 	;
 	
 bit_and_expr
-	: bit_and_expr '&' equal_expr {$$ = new Node(expr_t, "&"); $$->addBack($1); $$->addBack($3);}
+	: bit_and_expr '&' equal_expr {$$ = new Node(expr_t, "&", $1, $3);}
 	| equal_expr {$$ = $1;}
 	;
 	
 equal_expr
-	: equal_expr EQ greater_less_expr {$$ = new Node(expr_t, "=="); $$->addBack($1); $$->addBack($3);}
-	| equal_expr NE greater_less_expr {$$ = new Node(expr_t, "!="); $$->addBack($1); $$->addBack($3);}
+	: equal_expr EQ greater_less_expr {$$ = new Node(expr_t, "==", $1, $3);}
+	| equal_expr NE greater_less_expr {$$ = new Node(expr_t, "!=", $1, $3);}
 	| greater_less_expr {$$ = $1;}
 	;
 	
 greater_less_expr
-	: greater_less_expr LE shift_expr {$$ = new Node(expr_t, "<="); $$->addBack($1); $$->addBack($3);}
-	| greater_less_expr GE shift_expr {$$ = new Node(expr_t, ">="); $$->addBack($1); $$->addBack($3);}
-	| greater_less_expr LT shift_expr {$$ = new Node(expr_t, "<"); $$->addBack($1); $$->addBack($3);}
-	| greater_less_expr GT shift_expr {$$ = new Node(expr_t, ">"); $$->addBack($1); $$->addBack($3);}
+	: greater_less_expr LE shift_expr {$$ = new Node(expr_t, "<=", $1, $3);}
+	| greater_less_expr GE shift_expr {$$ = new Node(expr_t, ">=", $1, $3);}
+	| greater_less_expr LT shift_expr {$$ = new Node(expr_t, "<", $1, $3);}
+	| greater_less_expr GT shift_expr {$$ = new Node(expr_t, ">", $1, $3);}
 	| shift_expr {$$ = $1;}
 	;
 	
 shift_expr
-	: shift_expr LSHIFT addBack_sub_expr {$$ = new Node(expr_t, "<<"); $$->addBack($1); $$->addBack($3);}
-	| shift_expr RSHIFT addBack_sub_expr {$$ = new Node(expr_t, ">>"); $$->addBack($1); $$->addBack($3);}
-	| addBack_sub_expr {$$ = $1;}
+	: shift_expr LSHIFT add_sub_expr {$$ = new Node(expr_t, "<<", $1, $3);}
+	| shift_expr RSHIFT add_sub_expr {$$ = new Node(expr_t, ">>", $1, $3);}
+	| add_sub_expr {$$ = $1;}
 	;
 	
-addBack_sub_expr
-	: addBack_sub_expr '+' mul_div_mod_expr {$$ = new Node(expr_t, "+"); $$->addBack($1); $$->addBack($3);}
-	| addBack_sub_expr '-' mul_div_mod_expr {$$ = new Node(expr_t, "-"); $$->addBack($1); $$->addBack($3);}
+add_sub_expr
+	: add_sub_expr '+' mul_div_mod_expr {$$ = new Node(expr_t, "+", $1, $3);}
+	| add_sub_expr '-' mul_div_mod_expr {$$ = new Node(expr_t, "-", $1, $3);}
 	| mul_div_mod_expr {$$ = $1;}
 	;
 	
 mul_div_mod_expr
-	: mul_div_mod_expr '*' unary_expr {$$ = new Node(expr_t, "*"); $$->addBack($1); $$->addBack($3);}
-	| mul_div_mod_expr '/' unary_expr {$$ = new Node(expr_t, "/"); $$->addBack($1); $$->addBack($3);}
-	| mul_div_mod_expr '%' unary_expr {$$ = new Node(expr_t, "%"); $$->addBack($1); $$->addBack($3);}
+	: mul_div_mod_expr '*' unary_expr {$$ = new Node(expr_t, "*", $1, $3);}
+	| mul_div_mod_expr '/' unary_expr {$$ = new Node(expr_t, "/", $1, $3);}
+	| mul_div_mod_expr '%' unary_expr {$$ = new Node(expr_t, "%", $1, $3);}
 	| unary_expr {$$ = $1;}
 	;
 	
 unary_expr
-	: unary_op unary_expr {$$ = $1; $$->addBack($2);}
+	: unary_op unary_expr {$$ = $1; $$->addChild($2);}
 	| postfix_expr {$$ = $1;}
 	;
 	
 postfix_expr
-	: postfix_expr '[' expr ']' {$$ = new Node(expr_t, "[ ]"); $$->addBack($1); $$->addBack($3);}
-	| postfix_expr '(' expr ')' {$$ = new Node(expr_t, "( )"); $$->addBack($1); $$->addBack($3);}
-	| postfix_expr '(' ')' {$$ = new Node(expr_t, "( )"); $$->addBack($1);}
-	| postfix_expr INC {$$ = new Node(expr_t, "++"); $$->addBack($1);}
-	| postfix_expr DEC {$$ = new Node(expr_t, "--"); $$->addBack($1);}
+	: postfix_expr '[' expr ']' {$$ = new Node(expr_t, "[ ]", $1, $3);}
+	| postfix_expr '(' expr ')' {$$ = new Node(expr_t, "( )", $1, $3);}
+	| postfix_expr '(' ')' {$$ = new Node(expr_t, "( )", $1);}
+	| postfix_expr INC {$$ = new Node(expr_t, "++", $1);}
+	| postfix_expr DEC {$$ = new Node(expr_t, "--", $1);}
 	| basic_expr {$$ = $1;}
 	;
 
@@ -350,10 +350,10 @@ jmp_stmt
 	;
 
 loop_stmt
-	: WHILE '(' expr ')' stmt {$$ = new Node(while_stmt_t); $$->addBack($3); $$->addBack($5);}
-	| DO stmt WHILE '(' expr ')' {$$ = new Node(dowhile_stmt_t); $$->addBack($2); $$->addBack($5);}
-	| FOR '(' expr_stmt expr_stmt expr ')' stmt {$$ = new Node(for_stmt_t); $$->addBack($2); $$->addBack($3); $$->addBack($4); $$->addBack($6);}
-	| FOR '(' expr_stmt expr_stmt ')' stmt {$$ = new Node(for_stmt_t); $$->addBack($2); $$->addBack($3); $$->addBack($5);}
+	: WHILE '(' expr ')' stmt {$$ = new Node(while_stmt_t, $3, $5);}
+	| DO stmt WHILE '(' expr ')' {$$ = new Node(dowhile_stmt_t, $2, $5);}
+	| FOR '(' expr_stmt expr_stmt expr ')' stmt {$$ = new Node(for_stmt_t, $2, $3, $4, $6);}
+	| FOR '(' expr_stmt expr_stmt ')' stmt {$$ = new Node(for_stmt_t, $2, $3, $5);}
 	;
 
 expr_stmt
@@ -362,18 +362,18 @@ expr_stmt
 	;
 	
 compound_stmt
-	: '{' stmt_decl_list '}' {$$ = new Node(compound_stmt_t); $$->addBack($2); returnScope();}
+	: '{' stmt_decl_list '}' {$$ = new Node(compound_stmt_t, $2); returnScope();}
 	| '{' '}' {$$ = new Node(compound_stmt_t); returnScope();}
 	;
 	
 conditional_stmt
-	: IF '(' expr ')' stmt ELSE stmt {$$ = new Node(if_stmt_t); $$->addBack($3); $$->addBack($5); $$->addBack($7);}
-	| IF '(' expr ')' stmt %prec NO_ELSE {$$ = new Node(if_stmt_t); $$->addBack($3); $$->addBack($5);}
+	: IF '(' expr ')' stmt ELSE stmt {$$ = new Node(if_stmt_t, $3, $5, $7);}
+	| IF '(' expr ')' stmt %prec NO_ELSE {$$ = new Node(if_stmt_t, $3, $5);}
 	;
 	
 stmt_decl_list
-	: stmt_decl_list stmt {$$ = new Node(stmt_decl_list_t); $$->addBack($1); $$->addBack($2);}
-	| stmt_decl_list decl {$$ = new Node(stmt_decl_list_t); $$->addBack($1); $$->addBack($2);}
+	: stmt_decl_list stmt {$$ = new Node(stmt_decl_list_t, $1, $2);}
+	| stmt_decl_list decl {$$ = new Node(stmt_decl_list_t, $1, $2);}
 	| stmt {$$ = $1;}
 	| decl {$$ = $1;}
 	;

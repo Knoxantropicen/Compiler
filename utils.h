@@ -5,7 +5,6 @@
 #include <stack>
 #include <iostream>
 #include <fstream>
-#include <iomanip>
 using namespace std;
 
 // symbol table
@@ -101,10 +100,10 @@ union NodeData {
 
 class Node {
 public:
-	Node(NodeType);
-	Node(NodeType, char *);
-	Node(NodeType, int);
-	void addBack(Node *);	// add child
+	Node(NodeType, Node * child1 = NULL, Node * child2 = NULL, Node * child3 = NULL, Node * child4 = NULL);
+	Node(NodeType, char *, Node * child1 = NULL, Node * child2 = NULL, Node * child3 = NULL, Node * child4 = NULL);
+	Node(NodeType, int, Node * child1 = NULL, Node * child2 = NULL, Node * child3 = NULL, Node * child4 = NULL);
+	void addChild(Node *);
 	NodeType getType() const;
 	void setType(NodeType);
 	char * getCharP() const;	// be cautious

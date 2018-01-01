@@ -83,11 +83,25 @@ unsigned int table_count = 0;
 
 // grammar tree
 
-Node::Node(NodeType init_type): type(init_type) { row = row_count; col = col_count; table = curr_table; }
-Node::Node(NodeType init_type, char * string_data) : Node(init_type) { size_t len = strlen(string_data) + 1; data.string_v = new char[len]; strcpy_s(data.string_v, len, string_data); }
-Node::Node(NodeType init_type, int int_data) : Node(init_type) { data.int_v = int_data; }
+Node::Node(NodeType init_type, Node * child1, Node * child2, Node * child3, Node * child4): type(init_type) { 
+	row = row_count;
+	col = col_count;
+	table = curr_table;
+	if (child1) addChild(child1);
+	if (child2) addChild(child2);
+	if (child3) addChild(child3);
+	if (child4) addChild(child4);
+}
+Node::Node(NodeType init_type, char * string_data, Node * child1, Node * child2, Node * child3, Node * child4) : Node(init_type, child1, child2, child3, child4) {
+	size_t len = strlen(string_data) + 1;
+	data.string_v = new char[len];
+	strcpy_s(data.string_v, len, string_data);
+}
+Node::Node(NodeType init_type, int int_data, Node * child1, Node * child2, Node * child3, Node * child4) : Node(init_type, child1, child2, child3, child4) {
+	data.int_v = int_data;
+}
 
-void Node::addBack(Node * child) {
+void Node::addChild(Node * child) {
 	children.push_back(child);
 }
 
@@ -104,7 +118,7 @@ char * Node::getCharP() const {
 }
 
 string Node::getString() const {
-	return string(data.string_v);
+	return string(getCharP());
 }
 
 SymbolTable * Node::getTable() const {
