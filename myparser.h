@@ -1,7 +1,7 @@
 /****************************************************************************
 *                     U N R E G I S T E R E D   C O P Y
 * 
-* You are on day 38 of your 30 day trial period.
+* You are on day 1 of your 30 day trial period.
 * 
 * This file was produced by an UNREGISTERED COPY of Parser Generator. It is
 * for evaluation purposes only. If you continue to use Parser Generator 30
@@ -18,8 +18,8 @@
 * myparser.h
 * C++ header file generated from myparser.y.
 * 
-* Date: 12/06/17
-* Time: 20:36:14
+* Date: 01/01/18
+* Time: 21:22:37
 * 
 * AYACC Version: 2.07
 ****************************************************************************/
@@ -61,7 +61,7 @@ protected:
 	virtual void yycopyattribute(void YYFAR* dest, const void YYFAR* src, int count);
 
 public:
-#line 127 ".\\myparser.y"
+#line 78 ".\\myparser.y"
 
 	void yyerror(const char YYFAR* text);
 
@@ -72,7 +72,7 @@ public:
 #define YYPARSERNAME myparser
 #endif
 
-#line 142 ".\\myparser.y"
+#line 93 ".\\myparser.y"
 
 #ifndef YYSTYPE
 #define YYSTYPE Node *
@@ -81,59 +81,38 @@ public:
 #line 82 "myparser.h"
 #define VOID 257
 #define INT 258
-#define FLOAT 259
-#define DOUBLE 260
-#define CHAR 261
-#define BOOL 262
-#define STRING 263
-#define AUTO 264
-#define STRUCT 265
-#define UNION 266
-#define ENUM 267
-#define CONST 268
-#define VOLATILE 269
-#define SIZEOF 270
-#define GOTO 271
-#define BREAK 272
-#define CONTINUE 273
-#define RETURN 274
-#define WHILE 275
-#define DO 276
-#define FOR 277
-#define IF 278
-#define SWITCH 279
-#define CASE 280
-#define DEFAULT 281
-#define NO_ELSE 282
-#define ELSE 283
-#define ADDASSIGN 284
-#define SUBASSIGN 285
-#define MULASSIGN 286
-#define DIVASSIGN 287
-#define MODASSIGN 288
-#define ANDASSIGN 289
-#define ORASSIGN 290
-#define XORASSIGN 291
-#define REVASSIGN 292
-#define LSHIFTASSIGN 293
-#define RSHIFTASSIGN 294
-#define OR 295
-#define AND 296
-#define EQ 297
-#define NE 298
-#define LE 299
-#define GE 300
-#define LT 301
-#define GT 302
-#define INC 303
-#define DEC 304
-#define PT 305
-#define LSHIFT 306
-#define RSHIFT 307
-#define INTVAL 308
-#define DOUBLEVAL 309
-#define BOOLVAL 310
-#define CHARVAL 311
-#define STRINGVAL 312
-#define ID 313
+#define CHAR 259
+#define RETURN 260
+#define WHILE 261
+#define DO 262
+#define FOR 263
+#define IF 264
+#define NO_ELSE 265
+#define ELSE 266
+#define ADDASSIGN 267
+#define SUBASSIGN 268
+#define MULASSIGN 269
+#define DIVASSIGN 270
+#define MODASSIGN 271
+#define ANDASSIGN 272
+#define ORASSIGN 273
+#define XORASSIGN 274
+#define REVASSIGN 275
+#define LSHIFTASSIGN 276
+#define RSHIFTASSIGN 277
+#define OR 278
+#define AND 279
+#define EQ 280
+#define NE 281
+#define LE 282
+#define GE 283
+#define LT 284
+#define GT 285
+#define INC 286
+#define DEC 287
+#define LSHIFT 288
+#define RSHIFT 289
+#define INTVAL 290
+#define CHARVAL 291
+#define ID 292
 #endif

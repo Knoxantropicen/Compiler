@@ -20,34 +20,10 @@ void returnScope() {
 	curr_table = curr_table->getFather();
 }
 
-void recrSetEnumTypeName(Node * node, string new_name) {
-	if (node->getType() == e_decl_t) {
-		curr_table->getFather()->setTypeName(node->getChild(0)->getString(), new_name);
-		return;
-	}
-	for (unsigned int i = 0; i < node->getChildrenSize(); ++i)
-		recrSetEnumTypeName(node->getChild(i), new_name);
-}
-
-void enumTypeInsertEntry(Node * type_name_node, Node * member_list_node) {
-	if (member_list_node == NULL)
-		type_name_node->setEntry(new SymbolEntry(SfUnit(enum_d), vector<PtUnit>(), type_name_st, new SymbolTable()));
-	else 
-		type_name_node->setEntry(new SymbolEntry(SfUnit(enum_d), vector<PtUnit>(), type_name_st, member_list_node->getTable()));
-	curr_table->insert(type_name_node->getString(), type_name_node->getEntry());
-}
-
-void enumVarInsertEntry(Node * var_id) {
-	var_id->setTable(curr_table->getFather());
-	var_id->setEntry(new SymbolEntry(SfUnit(enum_d), vector<PtUnit>(), var_st, ""));
-	var_id->getTable()->insert(var_id->getString(), var_id->getEntry());
-}
-
 void declInsertEntry(Node * var_id) {
 	if (var_id->getType() == idt_t) {
-		var_id->setEntry(new SymbolEntry(giv.g_sf, giv.g_pt_list, giv.g_cate, giv.g_dim));
+		var_id->setEntry(new SymbolEntry(giv.g_type, giv.g_cate, giv.g_dim));
 		var_id->getTable()->insert(var_id->getString(), var_id->getEntry());
-		giv.g_pt_list = vector<PtUnit>();
 		giv.g_cate = var_st;
 		giv.g_dim = 0;
 		return;
@@ -55,39 +31,19 @@ void declInsertEntry(Node * var_id) {
 	declInsertEntry(var_id->getChild(0));
 }
 
-void customTypeInsertEntry(string name, SymbolTable * table) {	// store SymbolTable *
-	curr_table->insert(name, new SymbolEntry(giv.g_sf, giv.g_pt_list, type_name_st, table));
-	Descriptor d = giv.g_sf.type;
-	giv.g_sf = SfUnit();
-	giv.g_sf.type = d;
-	giv.g_pt_list = vector<PtUnit>();
-}
-
-void anonyCustomTypeInsertEntry(char * anony_name, SymbolTable * table) {
-	curr_table->insert(string(anony_name), new SymbolEntry(giv.g_sf, giv.g_pt_list, type_name_st, table));
-	Descriptor d = giv.g_sf.type;
-	giv.g_sf = SfUnit();
-	giv.g_sf.type = d;
-	giv.g_pt_list = vector<PtUnit>();
-}
-
 void funcInsertEntry(Node * func_id) {
 	func_id->setTable(curr_table->getFather());
-	func_id->setEntry(new SymbolEntry(SfUnit(), vector<PtUnit>(), function_st, &giv.g_param_list));
+	func_id->setEntry(new SymbolEntry(int_d, function_st, &giv.g_param_list));
 	func_id->getTable()->insert(func_id->getString(), func_id->getEntry());
 }
 
 void funcSetEntry(Node * func_head) {
 	Node * func_id = func_head->getChild(0);
-	func_id->getTable()->setSfPt(func_id->getString(), giv.g_sf, giv.g_pt_list);
-	giv.g_sf = SfUnit();
-	giv.g_pt_list = vector<PtUnit>();
+	func_id->getTable()->setType(func_id->getString(), giv.g_type);
 }
 
 void addParamList() {
-	giv.g_param_list.push_back(SfPtDimUnit(giv.g_sf, giv.g_pt_list, giv.g_dim));
-	giv.g_sf = SfUnit();
-	giv.g_pt_list = vector<PtUnit>();
+	giv.g_param_list.push_back(giv.g_type);
 	giv.g_cate = var_st;
 	giv.g_dim = 0;
 }
@@ -101,14 +57,9 @@ void outputTables() {
 void debug() {
 	cout << "Debug Info:" << endl;
 	cout << "giv_stack -- size: " << giv_stack.size() << endl;
-	cout << "giv.g_sf: " << giv.g_sf.const_e << " " << giv.g_sf.volatile_e << " " << d_converter[giv.g_sf.type] << endl;
-	cout << "giv.g_pt: ";
-	for (auto it: giv.g_pt_list) {
-		cout << it.const_e << " " << it.volatile_e << " | ";
-	}
-	cout << endl << "giv.g_cate: " << giv.g_cate << endl;
+	cout << "giv.g_type: " << giv.g_type << endl;
+	cout << "giv.g_cate: " << giv.g_cate << endl;
 	cout << "giv.g_dim: " << giv.g_dim << endl;
-	cout << "giv.g_type_name: " << giv.g_type_name << endl;
 	cout << "entered: " << entered << endl;
 	cout << "root table address: " << root_table << endl;
 	cout << "curr table address: " << curr_table << endl;
@@ -146,14 +97,10 @@ void debug() {
 }
 
 // place any declarations here
-%token VOID INT FLOAT DOUBLE CHAR BOOL STRING
-%token AUTO
-%token STRUCT UNION ENUM
-%token CONST VOLATILE
-%token SIZEOF
-%token GOTO BREAK CONTINUE RETURN
+%token VOID INT CHAR
+%token RETURN
 %token WHILE DO FOR
-%token IF SWITCH CASE DEFAULT
+%token IF
 %nonassoc NO_ELSE
 %nonassoc ELSE
 %token ADDASSIGN SUBASSIGN MULASSIGN DIVASSIGN MODASSIGN
@@ -162,9 +109,8 @@ void debug() {
 %token OR AND
 %token EQ NE LE GE LT GT
 %token INC DEC
-%token PT
 %token LSHIFT RSHIFT
-%token INTVAL DOUBLEVAL BOOLVAL CHARVAL STRINGVAL
+%token INTVAL CHARVAL
 %token ID
 
 %start program
@@ -190,93 +136,16 @@ block
 // data type
 	
 type
-	: VOID {$$ = new Node(type_sf_t, "void");}
-	| INT {$$ = new Node(type_sf_t, "integer");}
-	| FLOAT {$$ = new Node(type_sf_t, "float");}
-	| DOUBLE {$$ = new Node(type_sf_t, "double");}
-	| CHAR {$$ = new Node(type_sf_t, "character");}
-	| BOOL {$$ = new Node(type_sf_t, "boolean");}
-	| STRING {$$ = new Node(type_sf_t, "string");}
-	| AUTO {$$ = new Node(type_sf_t, "auto");}
-	| struct_union_type {$$ = $1;}
-	| enum_type {$$ = $1;}
+	: VOID {$$ = new Node(type_t, "void"); giv.g_type = void_d;}
+	| INT {$$ = new Node(type_t, "integer"); giv.g_type = int_d;}
+	| CHAR {$$ = new Node(type_t, "character"); giv.g_type = char_d;}
 	;
 
-type_qf_for_sf
-	: CONST {$$ = new Node(type_qf_t, "const"); giv.g_sf.const_e = true;}
-	| VOLATILE {$$ = new Node(type_qf_t, "volatile"); giv.g_sf.volatile_e = true;}
-	;
-
-type_qf_for_pt
-	: CONST {$$ = new Node(type_qf_t, "const"); giv.g_pt.const_e = true;}
-	| VOLATILE {$$ = new Node(type_qf_t, "volatile"); giv.g_pt.volatile_e = true;}
-	;
-	
-struct_union_type
-	: struct_union ID '{' struct_union_decl_list '}' {$$ = new Node(su_type_sf_t, $1->getCharP()); $2->setType(type_name_t); $$->addBack($1); $$->addBack($2); $$->addBack($4);
-		returnScope(); giv.g_sf.type = g_converter[$1->getString()];
-		customTypeInsertEntry($2->getString(), $4->getTable());}
-	| struct_union '{' struct_union_decl_list '}' {$$ = new Node(su_type_sf_t, $1->getCharP()); $$->addBack($1); char * anony_name = curr_table->getAnony(); $$->addBack(new Node(anony_idt_t, anony_name)); $$->addBack($3);
-		returnScope(); giv.g_sf.type = g_converter[$1->getString()];
-		anonyCustomTypeInsertEntry(anony_name, $3->getTable());}
-	| struct_union ID '{' '}' {$$ = new Node(su_type_sf_t, $1->getCharP()); $2->setType(type_name_t); $$->addBack($1); $$->addBack($2);
-		returnScope(); giv.g_sf.type = g_converter[$1->getString()];
-		customTypeInsertEntry($2->getString(), NULL);}
-	| struct_union '{' '}' {$$ = new Node(su_type_sf_t, $1->getCharP()); $$->addBack($1); char * anony_name = curr_table->getAnony(); $$->addBack(new Node(anony_idt_t, anony_name));
-		returnScope(); giv.g_sf.type = g_converter[$1->getString()];
-		anonyCustomTypeInsertEntry(anony_name, NULL);}
-	| struct_union ID {$$ = new Node(su_type_sf_t, $1->getCharP()); $2->setType(type_name_t); $$->addBack($1); $$->addBack($2);
-		giv.g_sf.type = g_converter[$1->getString()];
-		customTypeInsertEntry($2->getString(), NULL);}
-	;
-	
-struct_union
-	: STRUCT {$$ = new Node(type_sf_t, "struct");}
-	| UNION {$$ = new Node(type_sf_t, "union");}
-	;
-	
-enum_type
-	: enum ID '{' enum_decl_list '}' {$$ = $1; $2->setType(type_name_t); $$->addBack($2); $$->addBack($4); 
-		recrSetEnumTypeName($4, $2->getString());
-		returnScope(); giv.g_sf.type = g_converter[$1->getString()];
-		enumTypeInsertEntry($2, $4);}
-	| enum '{' enum_decl_list '}' {$$ = $1; char * anony_name = curr_table->getAnony(); $$->addBack(new Node(anony_idt_t, anony_name)); $$->addBack($3);
-		recrSetEnumTypeName($3, string(anony_name));
-		returnScope(); giv.g_sf.type = g_converter[$1->getString()];
-		enumTypeInsertEntry($$->getChild(0), $3);}
-	| enum ID '{' '}' {$$ = $1; $2->setType(type_name_t); $$->addBack($2);
-		returnScope(); giv.g_sf.type = g_converter[$1->getString()];
-		enumTypeInsertEntry($2, NULL);}
-	| enum '{' '}' {$$ = $1; char * anony_name = curr_table->getAnony(); $$->addBack(new Node(anony_idt_t, anony_name));
-		returnScope(); giv.g_sf.type = g_converter[$1->getString()];
-		enumTypeInsertEntry($$->getChild(0), NULL);}
-	| enum ID {$$ = $1; $2->setType(type_name_t); $$->addBack($2);
-		enumTypeInsertEntry($2, NULL);}
-	;
-
-enum
-	: ENUM {$$ = new Node(e_type_sf_t, "enum");}
-	;
-	
-pointer
-	: pointer type_qf_for_pt {$$ = new Node(idt_sf_t); $$->addBack($1); $$->addBack($2);}
-	| pointer '*' {$$ = new Node(idt_sf_t); $2 = new Node(ptr_t, "pointer"); $$->addBack($1); $$->addBack($2); giv.g_pt_list.push_back(giv.g_pt); giv.g_pt = PtUnit();}
-	| '*' {$$ = new Node(ptr_t, "pointer"); giv.g_pt = PtUnit();}
-	;
-	
 // declaration
 
 decl
-	: decl_sf decl_list ';' {$$ = new Node(decl_t); $$->addBack($1); $$->addBack($2); giv.g_sf = SfUnit();}
-	| decl_sf ';' {$$ = new Node(decl_t); $$->addBack($1); giv.g_sf = SfUnit();}
-	;
-	
-decl_sf
-	: decl_sf type {$$ = new Node(type_t); $$->addBack($1); $$->addBack($2); // incomplete
-		if (giv.g_sf.type == default_d) giv.g_sf.type = g_converter[$2->getString()]; else { cout << "Duplicate type!" << endl; system("pause");}}
-	| decl_sf type_qf_for_sf {$$ = new Node(type_t); $$->addBack($1); $$->addBack($2);}
-	| type {$$ = $1; giv.g_sf.type = g_converter[$1->getString()];}
-	| type_qf_for_sf {$$ = $1;}
+	: type decl_list ';' {$$ = new Node(decl_t); $$->addBack($1); $$->addBack($2);}
+	| type ';' {$$ = new Node(decl_t); $$->addBack($1);}
 	;
 	
 decl_list
@@ -290,9 +159,7 @@ decl_init
 	;
 	
 decl_head
-	: pointer var_decl_head {$$ = $2; $$->addFront($1); giv.g_pt_list.push_back(giv.g_pt); giv.g_pt = PtUnit();
-		declInsertEntry($2);}
-	| var_decl_head {$$ = $1; declInsertEntry($1);}
+	: var_decl_head {$$ = $1; declInsertEntry($1);}
 	;
 	
 var_decl_head
@@ -326,49 +193,17 @@ param_list
 	;
 	
 param
-	: decl_sf decl_init {$$ = new Node(param_t); $$->addBack($1); $$->addBack($2);}
-	| decl_sf pointer {$$ = new Node(param_t); $$->addBack($1); $$->addBack($2); giv.g_pt_list.push_back(giv.g_pt); giv.g_pt = PtUnit();}
-	| decl_sf {$$ = new Node(param_t); $$->addBack($1);}
+	: type decl_init {$$ = new Node(param_t); $$->addBack($1); $$->addBack($2);}
+	| type {$$ = new Node(param_t); $$->addBack($1);}
 	;
 
-struct_union_decl_list 
-	: struct_union_decl_list struct_union_decl {$$ = new Node(su_decl_list_t); $$->addBack($1); $$->addBack($2);}
-	| struct_union_decl {$$ = $1;}
-	;
-
-struct_union_decl
-	: decl_sf pointer ID '=' const_expr ';' {$$ = new Node(su_decl_t); $$->addBack($1); $$->addBack($2); $$->addBack($3); $$->addBack($5);
-		giv.g_pt_list.push_back(giv.g_pt); giv.g_pt = PtUnit();}
-	| decl_sf ID '=' const_expr ';' {$$ = new Node(su_decl_t); $$->addBack($1); $$->addBack($3);}
-	| decl_sf pointer ID ':' const_expr ';' {$$ = new Node(su_decl_t); $$->addBack($1); $$->addBack($2); $$->addBack($3); $$->addBack($5);
-		giv.g_pt_list.push_back(giv.g_pt); giv.g_pt = PtUnit();}
-	| decl_sf ID ':' const_expr ';' {$$ = new Node(su_decl_t); $$->addBack($1); $$->addBack($3);}
-	| decl_sf pointer ID ';' {$$ = new Node(su_decl_t); $$->addBack($1); $$->addBack($2); $$->addBack($3);
-		giv.g_pt_list.push_back(giv.g_pt); giv.g_pt = PtUnit();}
-	| decl_sf ID ';' {$$ = new Node(su_decl_t); $$->addBack($1); $$->addBack($2);}
-	;
-	
-enum_decl_list
-	: enum_decl_list ',' enum_decl {$$ = new Node(e_decl_list_t); $$->addBack($1); $$->addBack($3);}
-	| enum_decl {$$ = $1;}
-	;
-
-enum_decl
-	: ID '=' const_expr {$$ = new Node(e_decl_t); $$->addBack($1); $$->addBack($3);
-		enumVarInsertEntry($1);}
-	| ID {$$ = new Node(e_decl_t); $$->addBack($1);
-		enumVarInsertEntry($1);}
-	;
-	
 // function
 
 func
-	: decl_sf pointer func_decl_head compound_stmt {$$ = new Node(func_t); $$->addBack($1); $$->addBack($2); $$->addBack($3); $$->addBack($4);
-		giv.g_pt_list.push_back(giv.g_pt); giv.g_pt = PtUnit(); funcSetEntry($3);}
-	| decl_sf func_decl_head compound_stmt {$$ = new Node(func_t); $$->addBack($1); $$->addBack($2); $$->addBack($3);
+	: type func_decl_head compound_stmt {$$ = new Node(func_t); $$->addBack($1); $$->addBack($2); $$->addBack($3);
 		funcSetEntry($2);}
-	| func_decl_head compound_stmt {$$ = new Node(func_t); $$->addBack($1); $$->addBack($2);
-		funcSetEntry($1);}
+	| func_decl_head compound_stmt {$$ = new Node(func_t); $$->addBack(new Node(type_t, "integer")); giv.g_type = int_d; 
+		$$->addBack($1); $$->addBack($2); funcSetEntry($1);}
 	;
 
 // expression
@@ -451,25 +286,14 @@ mul_div_mod_expr
 	;
 	
 unary_expr
-	: unary_op cast_expr {$$ = $1; $$->addBack($2);}
-	| INC unary_expr {$$ = new Node(expr_t, "++"); $$->addBack($2);}
-	| DEC unary_expr {$$ = new Node(expr_t, "--"); $$->addBack($2);}
-	| SIZEOF '(' expr ')' {$$ = new Node(expr_t, "sizeof( )"); $$->addBack($3);}
-	| SIZEOF '(' type ')' {$$ = new Node(expr_t, "sizeof( )"); $$->addBack($3);}
+	: unary_op unary_expr {$$ = $1; $$->addBack($2);}
 	| postfix_expr {$$ = $1;}
-	;
-	
-cast_expr
-	: '(' type ')' cast_expr {$$ = new Node(expr_t, "( )"); $$->addBack($2); $$->addBack($4);}
-	| unary_expr {$$ = $1;}
 	;
 	
 postfix_expr
 	: postfix_expr '[' expr ']' {$$ = new Node(expr_t, "[ ]"); $$->addBack($1); $$->addBack($3);}
 	| postfix_expr '(' expr ')' {$$ = new Node(expr_t, "( )"); $$->addBack($1); $$->addBack($3);}
 	| postfix_expr '(' ')' {$$ = new Node(expr_t, "( )"); $$->addBack($1);}
-	| postfix_expr '.' ID {$$ = new Node(expr_t, "."); $$->addBack($1); $$->addBack($3);}
-	| postfix_expr PT ID {$$ = new Node(expr_t, "->"); $$->addBack($1); $$->addBack($3);}
 	| postfix_expr INC {$$ = new Node(expr_t, "++"); $$->addBack($1);}
 	| postfix_expr DEC {$$ = new Node(expr_t, "--"); $$->addBack($1);}
 	| basic_expr {$$ = $1;}
@@ -497,20 +321,17 @@ assign_op
 	;
 
 unary_op
-	: '*' {$$ = new Node(expr_t, "*");}
-	| '&' {$$ = new Node(expr_t, "&");}
-	| '+' {$$ = new Node(expr_t, "+");}
+	: '+' {$$ = new Node(expr_t, "+");}
 	| '-' {$$ = new Node(expr_t, "-");}
 	| '~' {$$ = new Node(expr_t, "~");}
 	| '!' {$$ = new Node(expr_t, "!");}
+	| INC {$$ = new Node(expr_t, "++");}
+	| DEC {$$ = new Node(expr_t, "--");}
 	;
 
 val
 	: INTVAL {$$ = $1;}
-	| DOUBLEVAL {$$ = $1;}
-	| BOOLVAL {$$ = $1;}
 	| CHARVAL {$$ = $1;}
-	| STRINGVAL {$$ = $1;}
 	;
 	
 // statement
@@ -519,16 +340,12 @@ stmt
 	: jmp_stmt {if (entered) returnScope(); $$ = $1;}
 	| loop_stmt {if (entered) returnScope(); $$ = $1;}
 	| expr_stmt {if (entered) returnScope(); $$ = $1;}
-	| label_stmt {if (entered) returnScope(); $$ = $1;}
 	| compound_stmt {$$ = $1;}
 	| conditional_stmt {if (entered) returnScope(); $$ = $1;}
 	;
 	
 jmp_stmt
-	: GOTO ID ';' {$$ = new Node(goto_stmt_t); $$->addBack($2);}
-	| BREAK ';' {$$ = new Node(break_stmt_t);}
-	| CONTINUE ';' {$$ = new Node(continue_stmt_t);}
-	| RETURN expr ';' {$$ = new Node(return_stmt_t);}
+	: RETURN expr ';' {$$ = new Node(return_stmt_t);}
 	| RETURN ';' {$$ = new Node(return_stmt_t);}
 	;
 
@@ -544,12 +361,6 @@ expr_stmt
 	| ';' {$$ = new Node(empty_stmt_t);}
 	;
 	
-label_stmt
-	: CASE const_expr ':' stmt {$$ = new Node(case_stmt_t); $$->addBack($2); $$->addBack($4);}
-	| DEFAULT ':' stmt {$$ = new Node(default_stmt_t); $$->addBack($3);}
-	| ID ':' stmt {$$ = new Node(label_stmt_t); $$->addBack($1); $$->addBack($3);}
-	;
-	
 compound_stmt
 	: '{' stmt_decl_list '}' {$$ = new Node(compound_stmt_t); $$->addBack($2); returnScope();}
 	| '{' '}' {$$ = new Node(compound_stmt_t); returnScope();}
@@ -558,7 +369,6 @@ compound_stmt
 conditional_stmt
 	: IF '(' expr ')' stmt ELSE stmt {$$ = new Node(if_stmt_t); $$->addBack($3); $$->addBack($5); $$->addBack($7);}
 	| IF '(' expr ')' stmt %prec NO_ELSE {$$ = new Node(if_stmt_t); $$->addBack($3); $$->addBack($5);}
-	| SWITCH '(' expr ')' stmt {$$ = new Node(switch_stmt_t); $$->addBack($3); $$->addBack($5);}
 	;
 	
 stmt_decl_list

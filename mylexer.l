@@ -28,13 +28,10 @@ sincomment	\/\/.*
 mulcomment	\/\*([^\*]*(\*[^\/])?)*\*\/
 digit 		[0-9]
 intval	 	{digit}+
-doubleval	{digit}+(\.{digit}+)?
 letter 		[a-zA-Z]
 octdigit	[0-8]
 hexdigit	[0-9a-fA-F]
 charval	 	'([^\\]|\\([abfnrtv\\\'\"0]|{octdigit}{1,3}|(x|X){hexdigit}{1,2}))'
-stringval	 \"([^\"]|\\\")*\"
-boolval		(true|false)
 id 			({letter}|_)+({letter}|{digit}|_)*
 
 
@@ -56,30 +53,13 @@ id 			({letter}|_)+({letter}|{digit}|_)*
 {mulcomment}	{moveComment;}
 "void"			{moveRight; return VOID;}
 "int"			{moveRight; return INT;}
-"float"			{moveRight; return FLOAT;}
-"double"		{moveRight; return DOUBLE;}
 "char"			{moveRight; return CHAR;}
-"bool"			{moveRight; return BOOL;}
-"string"		{moveRight; return STRING;}
-"auto"			{moveRight; return AUTO;}
-"struct"		{moveRight; return STRUCT;}
-"union"			{moveRight; return UNION;}
-"enum"			{moveRight; return ENUM;}
-"const"			{moveRight; return CONST;}
-"volatile"		{moveRight; return VOLATILE;}
-"sizeof"		{moveRight; return SIZEOF;}
-"goto"			{moveRight; return GOTO;}
-"break"			{moveRight; return BREAK;}
-"continue"		{moveRight; return CONTINUE;}
 "return"		{moveRight; return RETURN;}
 "while"			{moveRight; return WHILE;}
 "do"			{moveRight; return DO;}
 "for"			{moveRight; return FOR;}
 "if"			{moveRight; return IF;}
 "else"			{moveRight; return ELSE;}
-"switch"		{moveRight; return SWITCH;}
-"case"			{moveRight; return CASE;}
-"default"		{moveRight; return DEFAULT;}
 ","				{moveRight; return ',';}
 ":"				{moveRight; return ':';}
 "?"				{moveRight; return '?';}
@@ -109,7 +89,6 @@ id 			({letter}|_)+({letter}|{digit}|_)*
 ">"				{moveRight; return GT;}
 "++"			{moveRight; return INC;}
 "--"			{moveRight; return DEC;}
-"->"			{moveRight; return PT;}
 "+"				{moveRight; return '+';}
 "-"				{moveRight; return '-';}
 "*"				{moveRight; return '*';}
@@ -126,12 +105,8 @@ id 			({letter}|_)+({letter}|{digit}|_)*
 "="				{moveRight; return '=';}
 ";"				{moveRight; return ';';}
 {intval}		{moveRight; yylval = new Node(ival_t, atoi(yytext)); return INTVAL;}
-{doubleval}		{moveRight; yylval = new Node(dval_t, atof(yytext)); return DOUBLEVAL;}
-{boolval}		{moveRight; yylval = new Node(bval_t, (strcmp(yytext, "true") == 0)); return BOOLVAL;}
-{charval}		{moveRight; yylval = new Node(sval_t, yytext); return CHARVAL;}
-{stringval} 	{moveRight; yylval = new Node(sval_t, yytext); return STRINGVAL;}
+{charval}		{moveRight; yylval = new Node(cval_t, yytext); return CHARVAL;}
 {id}			{moveRight; yylval = new Node(idt_t, yytext); return ID;}
-
 
 %%
 
