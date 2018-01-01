@@ -91,10 +91,6 @@ void Node::addBack(Node * child) {
 	children.push_back(child);
 }
 
-void Node::addFront(Node * child) {
-	children.push_front(child);
-}
-
 NodeType Node::getType() const {
 	return type;
 }

@@ -1,7 +1,6 @@
 #pragma once
 #include <string>
 #include <unordered_map>
-#include <deque>
 #include <vector>
 #include <stack>
 #include <iostream>
@@ -106,7 +105,6 @@ public:
 	Node(NodeType, char *);
 	Node(NodeType, int);
 	void addBack(Node *);	// add child
-	void addFront(Node *);	// add child
 	NodeType getType() const;
 	void setType(NodeType);
 	char * getCharP() const;	// be cautious
@@ -121,7 +119,7 @@ public:
 private:
 	NodeType type;
 	NodeData data;
-	deque<Node *> children;
+	vector<Node *> children;
 	SymbolTable * table;
 	SymbolEntry * entry;
 	unsigned int row, col;
