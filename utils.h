@@ -107,28 +107,25 @@ union NodeData {
 	Operator op_v;	// operator
 };
 
+union Label {
+	struct {
+		string begin_lb;
+		string next_lb;
+	};
+	struct {
+		string true_lb;
+		string false_lb;
+	};
+};
+
 class Node {
 public:
 	Node(NodeType, Node * child1 = NULL, Node * child2 = NULL, Node * child3 = NULL, Node * child4 = NULL);
 	Node(NodeType, int, Node * child1 = NULL, Node * child2 = NULL, Node * child3 = NULL, Node * child4 = NULL);
 	Node(NodeType, char *, Node * child1 = NULL, Node * child2 = NULL, Node * child3 = NULL, Node * child4 = NULL);
 	Node(NodeType, Operator, Node * child1 = NULL, Node * child2 = NULL, Node * child3 = NULL, Node * child4 = NULL);
-	NodeType getType() const;
-	void setType(NodeType);
-	NodeValType getValType() const;
-	void setValType(NodeValType);
-	int getInt() const;
-	string getString() const;	// be cautious
-	Operator getOp() const;
-	SymbolTable * getTable() const;
-	SymbolEntry * getEntry() const;
-	void setTable(SymbolTable *);
-	void setEntry(SymbolEntry *);
-	Node * getChild(unsigned int) const;
-	unsigned int getChildrenSize() const;
 	unsigned int traverse() const;
 	SymbolEntry * symbolCheck(string) const;
-private:
 	void addChild(Node *);
 	void exprTypeCheck();
 	void stmtTypeCheck();
@@ -149,3 +146,12 @@ extern unsigned int row_count, col_count;
 
 extern unsigned int node_id;
 extern unordered_map<NodeType, string> term_table;
+
+// tree
+class Tree {
+public:
+	Tree(Node *);
+	void gen_label();
+private:
+	Node * root;
+};

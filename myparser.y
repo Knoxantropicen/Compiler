@@ -17,13 +17,13 @@ void returnScope() {
 }
 
 void declInsertEntry(Node * var_id, NodeValType val_type) {
-	if (var_id->getType() == idt_t) {
-		var_id->setEntry(new SymbolEntry(val_type, var_st));
-		var_id->getTable()->insert(var_id->getString(), var_id->getEntry());
+	if (var_id->type == idt_t) {
+		var_id->entry = new SymbolEntry(val_type, var_st);
+		var_id->table->insert(string(var_id->data.string_v), var_id->entry);
 		return;
 	}
-	for (int i = 0; i < var_id->getChildrenSize(); ++i) {
-		declInsertEntry(var_id->getChild(i), val_type);
+	for (unsigned int i = 0; i < var_id->children.size(); ++i) {
+		declInsertEntry(var_id->children[i], val_type);
 	}
 }
 
@@ -122,7 +122,7 @@ decl_group
 	;
 
 decl
-	: type decl_list ';' {$$ = new Node(decl_t, $1, $2); declInsertEntry($2, vt_converter[$1->getString()]);}
+	: type decl_list ';' {$$ = new Node(decl_t, $1, $2); declInsertEntry($2, vt_converter[string($1->data.string_v)]);}
 	| type ';' {$$ = new Node(decl_t, $1);}
 	;
 	
@@ -146,7 +146,7 @@ expr
 	;
 	
 assign_expr
-	: ID assign_op assign_expr {$1->setValType($1->symbolCheck($1->getString())->val_type); $$ = new Node(assign_expr_t, $2->getOp(), $1, $3);}
+	: ID assign_op assign_expr {$1->val_type = $1->symbolCheck(string($1->data.string_v))->val_type; $$ = new Node(assign_expr_t, $2->data.op_v, $1, $3);}
 	| const_expr {$$ = $1;}
 	;
 	
@@ -218,7 +218,7 @@ mul_div_mod_expr
 	;
 	
 unary_expr
-	: unary_op unary_expr {$$ = new Node(unary_expr_t, $1->getOp(), $2);}
+	: unary_op unary_expr {$$ = new Node(unary_expr_t, $1->data.op_v, $2);}
 	| postfix_expr {$$ = $1;}
 	;
 	
@@ -229,7 +229,7 @@ postfix_expr
 	;
 
 basic_expr
-	: ID {$$ = $1; $$->setValType($$->symbolCheck($$->getString())->val_type);}
+	: ID {$$ = $1; $$->val_type = $$->symbolCheck(string($$->data.string_v))->val_type;}
 	| val {$$ = $1;}
 	| '(' expr ')' {$$ = $2;}
 	;

@@ -88,10 +88,10 @@ Node::Node(NodeType init_type, Node * child1, Node * child2, Node * child3, Node
 	row = row_count;
 	col = col_count;
 	table = curr_table;
-	if (child1) addChild(child1);
-	if (child2) addChild(child2);
-	if (child3) addChild(child3);
-	if (child4) addChild(child4);
+	if (child1) children.push_back(child1);
+	if (child2) children.push_back(child2);
+	if (child3) children.push_back(child3);
+	if (child4) children.push_back(child4);
 	val_type = void_vt;
 	stmtTypeCheck();
 }
@@ -108,62 +108,6 @@ Node::Node(NodeType init_type, char * string_data, Node * child1, Node * child2,
 Node::Node(NodeType init_type, Operator op, Node * child1, Node * child2, Node * child3, Node * child4) : Node(init_type, child1, child2, child3, child4) {
 	data.op_v = op;
 	exprTypeCheck();
-}
-
-void Node::addChild(Node * child) {
-	children.push_back(child);
-}
-
-NodeType Node::getType() const {
-	return type;
-}
-
-void Node::setType(NodeType new_type) {
-	type = new_type;
-}
-
-NodeValType Node::getValType() const {
-	return val_type;
-}
-
-void Node::setValType(NodeValType new_val_type) {
-	val_type = new_val_type;
-}
-
-int Node::getInt() const {
-	return data.int_v;
-}
-
-string Node::getString() const {
-	return string(data.string_v);
-}
-
-Operator Node::getOp() const {
-	return data.op_v;
-}
-
-SymbolTable * Node::getTable() const {
-	return table;
-}
-
-SymbolEntry * Node::getEntry() const {
-	return entry;
-}
-
-void Node::setTable(SymbolTable * new_table) {
-	table = new_table;
-}
-
-void Node::setEntry(SymbolEntry * new_entry) {
-	entry = new_entry;
-}
-
-Node * Node::getChild(unsigned int idx) const {
-	return children[idx];
-}
-
-unsigned int Node::getChildrenSize() const {
-	return children.size();
 }
 
 unsigned int Node::traverse() const {
@@ -204,48 +148,48 @@ unsigned int Node::traverse() const {
 void Node::exprTypeCheck() {
 	switch (type) {
 	case assign_expr_t:
-		val_type = symbolCheck(getChild(0)->getString())->val_type;
-		if (val_type != getChild(1)->getValType())
+		val_type = symbolCheck(string(children[0]->data.string_v))->val_type;
+		if (val_type != children[1]->val_type)
 			typeError("Types unequal in assignment");
-		if (val_type != int_vt && getOp() != assign_d)
+		if (val_type != int_vt && data.op_v != assign_d)
 			typeError("Invalid calculation on non-integer type");
 		break;
 	case ternary_expr_t:
-		val_type = getChild(1)->getValType();
-		if (val_type != getChild(2)->getValType())
+		val_type = children[1]->val_type;
+		if (val_type != children[2]->val_type)
 			typeError("Types unequal in ternary expression");
 		break;
 	case logical_expr_t:
 		val_type = bool_vt;
-		if (getChild(0)->getValType() != bool_vt || getChild(1)->getValType() != bool_vt)
+		if (children[0]->val_type != bool_vt || children[1]->val_type != bool_vt)
 			typeError("Invalid logical expression");
 		break;
 	case calc_expr_t:
 		val_type = int_vt;
-		if (getChild(0)->getValType() != int_vt || getChild(1)->getValType() != int_vt)
+		if (children[0]->val_type != int_vt || children[1]->val_type != int_vt)
 			typeError("Invalid calculation on non-integer type");
 		break;
 	case comp_expr_t:
 		val_type = bool_vt;
-		if (getChild(0)->getValType() != getChild(1)->getValType())
+		if (children[0]->val_type != children[1]->val_type)
 			typeError("Types unequal in comparement");
 		break;
 	case unary_expr_t:
-		val_type = getChild(0)->getValType();
-		if (val_type == bool_vt && getOp() != not_d)
+		val_type = children[0]->val_type;
+		if (val_type == bool_vt && data.op_v != not_d)
 			typeError("Invalid calculation on non-integer type");
-		else if (val_type == int_vt && getOp() == not_d)
+		else if (val_type == int_vt && data.op_v == not_d)
 			typeError("Invalid logical operation on integer");
 		else if (val_type == char_vt)
 			typeError("Invalid unary operation");
-		if (!checkID(getChild(0)))
+		if (!checkID(children[0]))
 			typeError("Expression is not assignable");
 		break;
 	case post_expr_t:
-		val_type = getChild(0)->getValType();
+		val_type = children[0]->val_type;
 		if (val_type != int_vt)
 			typeError("Invalid calculation on non-interger type");
-		if (!checkID(getChild(0)))
+		if (!checkID(children[0]))
 			typeError("Expression is not assignable");
 		break;
 	}
@@ -256,11 +200,11 @@ void Node::stmtTypeCheck() {
 	case while_stmt_t:
 	case dowhile_stmt_t:
 	case if_stmt_t:
-		if (getChild(0)->getValType() != bool_vt)
+		if (children[0]->val_type != bool_vt)
 			typeError("Non-boolean condition");
 		break;
 	case for_stmt_t:
-		if (getChild(1)->getValType() != bool_vt)
+		if (children[1]->val_type != bool_vt)
 			typeError("Non-boolean condition");
 		break;
 	}
@@ -286,8 +230,8 @@ void Node::typeError(const char * text) const {
 }
 
 bool Node::checkID(Node * node) const {
-	if (node->getChildrenSize() > 0) return checkID(node->getChild(0));
-	return (node->getType() == idt_t);
+	if (!node->children.empty()) return checkID(node->children[0]);
+	return (node->type == idt_t);
 }
 
 unsigned int row_count = 1, col_count = 1;
