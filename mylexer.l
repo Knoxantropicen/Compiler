@@ -51,15 +51,14 @@ id 			({letter}|_)+({letter}|{digit}|_)*
 {nl}			{moveDown;}
 {sincomment}	{moveRight;}
 {mulcomment}	{moveComment;}
-"void"			{moveRight; return VOID;}
 "int"			{moveRight; return INT;}
 "char"			{moveRight; return CHAR;}
-"return"		{moveRight; return RETURN;}
 "while"			{moveRight; return WHILE;}
 "do"			{moveRight; return DO;}
 "for"			{moveRight; return FOR;}
 "if"			{moveRight; return IF;}
 "else"			{moveRight; return ELSE;}
+"main"			{moveRight; return MAIN;}
 ","				{moveRight; return ',';}
 ":"				{moveRight; return ':';}
 "?"				{moveRight; return '?';}
@@ -96,7 +95,7 @@ id 			({letter}|_)+({letter}|{digit}|_)*
 "%"				{moveRight; return '%';}
 "!"				{moveRight; return '!';}
 "~"				{moveRight; return '~';}
-"{"				{moveRight; if (!entered) { giv_stack.push(giv); giv = GIV(); SymbolTable * sub_table = new SymbolTable(); sub_table->setFather(curr_table); curr_table = sub_table; } else entered = false; return '{';}
+"{"				{moveRight; if (!entered) { SymbolTable * sub_table = new SymbolTable(); sub_table->setFather(curr_table); curr_table = sub_table; } else entered = false; return '{';}
 "}"				{moveRight; return '}';}
 "("				{moveRight; return '(';}
 ")"				{moveRight; return ')';}

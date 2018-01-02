@@ -11,51 +11,55 @@ using namespace std;
 // (name, type, category, storage)
 
 enum SymbolType {	// category
-	var_st, array_st, function_st,
+	var_st, function_st,
 };
 
-enum Descriptor {	// basic type
-	void_d,
-	int_d,
-	char_d,
+enum Operator {
+	comma_d,
+	ternary_d,
+	or_d, and_d,
+	bit_or_d, bit_xor_d, bit_and_d,
+	eq_d, ne_d,
+	le_d, ge_d,
+	lt_d, gt_d,
+	lshift_d, rshift_d,
+	add_d, sub_d,
+	mul_d, div_d, mod_d,
+	post_inc_d, post_dec_d,
+	assign_d,
+	addassign_d, subassign_d,
+	mulassign_d, divassign_d, modassign_d,
+	andassign_d, orassign_d, xorassign_d, revassign_d,
+	lshiftassign_d, rshiftassign_d,
+	pos_d, neg_d, rev_d, not_d,
+	pre_inc_d, pre_dec_d,
 };
 
-union Storage {
-	vector<Descriptor> * func_params;	// function parameter list
-	unsigned int array_dim;	// array dimension
+enum NodeValType {
+	void_vt,
+	int_vt,
+	char_vt,
+	bool_vt,
 };
 
 struct SymbolEntry {
-	Descriptor type;
-	SymbolType category;	// symbol category
-	Storage storage;	// specific storage
-	SymbolEntry(Descriptor, SymbolType, vector<Descriptor> *);
-	SymbolEntry(Descriptor, SymbolType, unsigned int);
+	NodeValType val_type;	// symbol value type (int, char)
+	SymbolType category;	// symbol category (var, func)
+	SymbolEntry(NodeValType, SymbolType);
 };
 
-struct GIV { // global intermediate variables
-	Descriptor g_type;
-	SymbolType g_cate;
-	vector<Descriptor> g_param_list;
-	unsigned int g_dim;
-	GIV();
-};
-
-extern stack<GIV> giv_stack;
-extern GIV giv;
 extern bool entered; // check if already entered subscope before compound statement
 
-extern unordered_map<string, Descriptor> g_converter;
-extern unordered_map<Descriptor, string> d_converter;
-extern unordered_map<SymbolType, string> st_converter;
+extern unordered_map<Operator, string> op_converter;
+extern unordered_map<SymbolType, string> st_translator;
+extern unordered_map<string, NodeValType> vt_converter;
 
 class SymbolTable { // (name -- entry)
 public:
 	void setFather(SymbolTable *);
 	SymbolTable * getFather();
-	bool find(string) const;
+	SymbolEntry * find(string);
 	void insert(string, SymbolEntry *);
-	void setType(string, Descriptor);
 	void output(unsigned int) const;
 private:
 	unordered_map<string, SymbolEntry *> table;
@@ -69,21 +73,25 @@ extern unsigned int table_count;
 // grammar tree
 
 enum NodeType {
-	blocks_t,
+	program_t,
 	type_t,
 	expr_t,
+	assign_expr_t,
+	ternary_expr_t,
+	logical_expr_t,
+	calc_expr_t,
+	comp_expr_t,
+	unary_expr_t,
+	post_expr_t,
+	temp_expr_t,
 	idt_t,
 	ival_t,
 	cval_t,
+	decl_group_t,
 	decl_t,
-	decl_head_t,
 	decl_list_t,
-	init_val_t,
-	param_list_t,
-	param_t,
 	idt_list_t,
 	func_t,
-	return_stmt_t,
 	while_stmt_t,
 	dowhile_stmt_t,
 	for_stmt_t,
@@ -94,29 +102,40 @@ enum NodeType {
 };
 
 union NodeData {
-	int int_v;
-	char * string_v;
+	int int_v;	// integer value
+	char * string_v;	// character value, id name, type name
+	Operator op_v;	// operator
 };
 
 class Node {
 public:
 	Node(NodeType, Node * child1 = NULL, Node * child2 = NULL, Node * child3 = NULL, Node * child4 = NULL);
-	Node(NodeType, char *, Node * child1 = NULL, Node * child2 = NULL, Node * child3 = NULL, Node * child4 = NULL);
 	Node(NodeType, int, Node * child1 = NULL, Node * child2 = NULL, Node * child3 = NULL, Node * child4 = NULL);
-	void addChild(Node *);
+	Node(NodeType, char *, Node * child1 = NULL, Node * child2 = NULL, Node * child3 = NULL, Node * child4 = NULL);
+	Node(NodeType, Operator, Node * child1 = NULL, Node * child2 = NULL, Node * child3 = NULL, Node * child4 = NULL);
 	NodeType getType() const;
 	void setType(NodeType);
-	char * getCharP() const;	// be cautious
+	NodeValType getValType() const;
+	void setValType(NodeValType);
+	int getInt() const;
 	string getString() const;	// be cautious
+	Operator getOp() const;
 	SymbolTable * getTable() const;
 	SymbolEntry * getEntry() const;
 	void setTable(SymbolTable *);
 	void setEntry(SymbolEntry *);
 	Node * getChild(unsigned int) const;
 	unsigned int getChildrenSize() const;
-	const unsigned int traverse();
+	unsigned int traverse() const;
+	SymbolEntry * symbolCheck(string) const;
 private:
+	void addChild(Node *);
+	void exprTypeCheck();
+	void stmtTypeCheck();
+	void typeError(const char *) const;
+	bool checkID(Node *) const;
 	NodeType type;
+	NodeValType val_type;
 	NodeData data;
 	vector<Node *> children;
 	SymbolTable * table;

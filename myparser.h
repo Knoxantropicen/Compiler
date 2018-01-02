@@ -18,8 +18,8 @@
 * myparser.h
 * C++ header file generated from myparser.y.
 * 
-* Date: 01/01/18
-* Time: 22:52:19
+* Date: 01/02/18
+* Time: 20:08:30
 * 
 * AYACC Version: 2.07
 ****************************************************************************/
@@ -61,7 +61,7 @@ protected:
 	virtual void yycopyattribute(void YYFAR* dest, const void YYFAR* src, int count);
 
 public:
-#line 78 ".\\myparser.y"
+#line 57 ".\\myparser.y"
 
 	void yyerror(const char YYFAR* text);
 
@@ -72,47 +72,46 @@ public:
 #define YYPARSERNAME myparser
 #endif
 
-#line 93 ".\\myparser.y"
+#line 72 ".\\myparser.y"
 
 #ifndef YYSTYPE
 #define YYSTYPE Node *
 #endif
 
 #line 82 "myparser.h"
-#define VOID 257
-#define INT 258
-#define CHAR 259
-#define RETURN 260
-#define WHILE 261
-#define DO 262
-#define FOR 263
-#define IF 264
-#define NO_ELSE 265
-#define ELSE 266
-#define ADDASSIGN 267
-#define SUBASSIGN 268
-#define MULASSIGN 269
-#define DIVASSIGN 270
-#define MODASSIGN 271
-#define ANDASSIGN 272
-#define ORASSIGN 273
-#define XORASSIGN 274
-#define REVASSIGN 275
-#define LSHIFTASSIGN 276
-#define RSHIFTASSIGN 277
-#define OR 278
-#define AND 279
-#define EQ 280
-#define NE 281
-#define LE 282
-#define GE 283
-#define LT 284
-#define GT 285
-#define INC 286
-#define DEC 287
-#define LSHIFT 288
-#define RSHIFT 289
-#define INTVAL 290
-#define CHARVAL 291
-#define ID 292
+#define INT 257
+#define CHAR 258
+#define WHILE 259
+#define DO 260
+#define FOR 261
+#define IF 262
+#define NO_ELSE 263
+#define ELSE 264
+#define MAIN 265
+#define ADDASSIGN 266
+#define SUBASSIGN 267
+#define MULASSIGN 268
+#define DIVASSIGN 269
+#define MODASSIGN 270
+#define ANDASSIGN 271
+#define ORASSIGN 272
+#define XORASSIGN 273
+#define REVASSIGN 274
+#define LSHIFTASSIGN 275
+#define RSHIFTASSIGN 276
+#define OR 277
+#define AND 278
+#define EQ 279
+#define NE 280
+#define LE 281
+#define GE 282
+#define LT 283
+#define GT 284
+#define INC 285
+#define DEC 286
+#define LSHIFT 287
+#define RSHIFT 288
+#define INTVAL 289
+#define CHARVAL 290
+#define ID 291
 #endif

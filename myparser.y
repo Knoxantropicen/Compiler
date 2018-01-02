@@ -11,41 +11,24 @@ Date: Saturday, December 2, 2017
 using namespace std;
 
 void returnScope() {
-	if (!giv_stack.empty()) { 
-		giv = giv_stack.top();
-		giv_stack.pop();
-	}
 	entered = false;
 	tables.insert({curr_table, table_count++});
 	curr_table = curr_table->getFather();
 }
 
-void declInsertEntry(Node * var_id) {
+void declInsertEntry(Node * var_id, NodeValType val_type) {
 	if (var_id->getType() == idt_t) {
-		var_id->setEntry(new SymbolEntry(giv.g_type, giv.g_cate, giv.g_dim));
+		var_id->setEntry(new SymbolEntry(val_type, var_st));
 		var_id->getTable()->insert(var_id->getString(), var_id->getEntry());
-		giv.g_cate = var_st;
-		giv.g_dim = 0;
 		return;
 	}
-	declInsertEntry(var_id->getChild(0));
+	for (int i = 0; i < var_id->getChildrenSize(); ++i) {
+		declInsertEntry(var_id->getChild(i), val_type);
+	}
 }
 
-void funcInsertEntry(Node * func_id) {
-	func_id->setTable(curr_table->getFather());
-	func_id->setEntry(new SymbolEntry(int_d, function_st, &giv.g_param_list));
-	func_id->getTable()->insert(func_id->getString(), func_id->getEntry());
-}
-
-void funcSetEntry(Node * func_head) {
-	Node * func_id = func_head->getChild(0);
-	func_id->getTable()->setType(func_id->getString(), giv.g_type);
-}
-
-void addParamList() {
-	giv.g_param_list.push_back(giv.g_type);
-	giv.g_cate = var_st;
-	giv.g_dim = 0;
+void funcInsertEntry() {
+	curr_table->insert("main", new SymbolEntry(int_vt, function_st));
 }
 
 void outputTables() {
@@ -56,10 +39,6 @@ void outputTables() {
 
 void debug() {
 	cout << "Debug Info:" << endl;
-	cout << "giv_stack -- size: " << giv_stack.size() << endl;
-	cout << "giv.g_type: " << giv.g_type << endl;
-	cout << "giv.g_cate: " << giv.g_cate << endl;
-	cout << "giv.g_dim: " << giv.g_dim << endl;
 	cout << "entered: " << entered << endl;
 	cout << "root table address: " << root_table << endl;
 	cout << "curr table address: " << curr_table << endl;
@@ -97,12 +76,12 @@ void debug() {
 }
 
 // place any declarations here
-%token VOID INT CHAR
-%token RETURN
+%token INT CHAR
 %token WHILE DO FOR
 %token IF
 %nonassoc NO_ELSE
 %nonassoc ELSE
+%token MAIN
 %token ADDASSIGN SUBASSIGN MULASSIGN DIVASSIGN MODASSIGN
 %token ANDASSIGN ORASSIGN XORASSIGN REVASSIGN
 %token LSHIFTASSIGN RSHIFTASSIGN
@@ -122,99 +101,52 @@ void debug() {
 program
 	: blocks {$$ = $1; cout << "Grammar Tree:" << endl; $$->traverse(); cout << endl; outputTables(); cout << endl;}
 	;
-
+	
 blocks
-	: blocks block {$$ = new Node(blocks_t, $1, $2);}
-	| block {$$ = $1;}
-	;
-
-block
-	: decl {$$ = $1;}
-	| func {$$ = $1;}
+	: decl_group func {$$ = new Node(program_t, $1, $2);}
+	| func {$$ = new Node(program_t, $1);}
 	;
 
 // data type
 	
 type
-	: VOID {$$ = new Node(type_t, "void"); giv.g_type = void_d;}
-	| INT {$$ = new Node(type_t, "integer"); giv.g_type = int_d;}
-	| CHAR {$$ = new Node(type_t, "character"); giv.g_type = char_d;}
+	: INT {$$ = new Node(type_t, "integer");}
+	| CHAR {$$ = new Node(type_t, "character");}
 	;
 
 // declaration
 
+decl_group
+	: decl_group decl {$$ = new Node(decl_group_t, $1, $2);}
+	| decl {$$ = $1;}
+	;
+
 decl
-	: type decl_list ';' {$$ = new Node(decl_t, $1, $2);}
+	: type decl_list ';' {$$ = new Node(decl_t, $1, $2); declInsertEntry($2, vt_converter[$1->getString()]);}
 	| type ';' {$$ = new Node(decl_t, $1);}
 	;
 	
 decl_list
-	: decl_list ',' decl_init {$$ = new Node(decl_list_t, $1, $3);}
-	| decl_init {$$ = $1;}
-	;
-	
-decl_init
-	: decl_head '=' init_val {$$ = new Node(expr_t, "=", $1, $3);}
-	| decl_head {$$ = $1;}
-	;
-	
-decl_head
-	: var_decl_head {$$ = $1; declInsertEntry($1);}
-	;
-	
-var_decl_head
-	: var_decl_head '[' const_expr ']' {$$ = new Node(decl_head_t, $1->getCharP(), $1, $3); giv.g_cate = array_st; ++giv.g_dim;}
-	| var_decl_head '[' ']' {$$ = new Node(decl_head_t, $1->getCharP(), $1); giv.g_cate = array_st; ++giv.g_dim;}
+	: decl_list ',' ID {$$ = new Node(decl_list_t, $1, $3);}
 	| ID {$$ = $1;}
 	;
-
-func_decl_head
-	: ID '(' {giv_stack.push(giv); giv = GIV(); SymbolTable * sub_table = new SymbolTable(); sub_table->setFather(curr_table); curr_table = sub_table; entered = true;}
-		param_list ')' {$$ = new Node(decl_head_t, $1->getCharP(), $1, $2);
-		funcInsertEntry($1);}
-	| ID '(' {giv_stack.push(giv); giv = GIV(); SymbolTable * sub_table = new SymbolTable(); sub_table->setFather(curr_table); curr_table = sub_table; entered = true;}
-		 ')' {$$ = new Node(decl_head_t, $1->getCharP(), $1);
-		funcInsertEntry($1);}
-	;
-
-init_val
-	: '{' init_val_list '}' {$$ = $2; returnScope();}
-	| assign_expr {$$ = $1;}
-	;
 	
-init_val_list
-	: init_val_list ',' init_val {$$ = new Node(init_val_t, $1, $3);}
-	| init_val {$$ = $1;}
-	;
-	
-param_list
-	: param_list ',' param {$$ = new Node(param_list_t, $1, $3); addParamList();}
-	| param {$$ = $1; addParamList();}
-	;
-	
-param
-	: type decl_init {$$ = new Node(param_t, $1, $2);}
-	| type {$$ = new Node(param_t, $1);}
-	;
-
-// function
+// function (main)
 
 func
-	: type func_decl_head compound_stmt {$$ = new Node(func_t, $1, $2, $3);
-		funcSetEntry($2);}
-	| func_decl_head compound_stmt {$$ = new Node(func_t, new Node(type_t, "integer"), $1, $2); giv.g_type = int_d; 
-		funcSetEntry($1);}
+	: INT MAIN '(' ')' compound_stmt {$$ = new Node(func_t, new Node(type_t, "integer"), $5); funcInsertEntry();}
+	| MAIN '(' ')' compound_stmt {$$ = new Node(func_t, new Node(type_t, "integer"), $4); funcInsertEntry();}
 	;
 
 // expression
 
 expr
-	: expr ',' assign_expr {$$ = new Node(expr_t, ",", $1, $3);}
+	: expr ',' assign_expr {$$ = new Node(expr_t, comma_d, $1, $3);}
 	| assign_expr {$$ = $1;}
 	;
 	
 assign_expr
-	: ID assign_op assign_expr {$$ = $2; $$->addChild($1); $$->addChild($3);}
+	: ID assign_op assign_expr {$1->setValType($1->symbolCheck($1->getString())->val_type); $$ = new Node(assign_expr_t, $2->getOp(), $1, $3);}
 	| const_expr {$$ = $1;}
 	;
 	
@@ -223,110 +155,107 @@ const_expr
 	;
 
 ternary_expr
-	: or_expr '?' ternary_expr ':' ternary_expr {$$ = new Node(expr_t, "? :", $1, $2, $3);}
+	: or_expr '?' ternary_expr ':' ternary_expr {$$ = new Node(ternary_expr_t, ternary_d, $1, $2, $3);}
 	| or_expr {$$ = $1;}
 	;	
 	
 or_expr
-	: or_expr OR and_expr {$$ = new Node(expr_t, "||", $1, $3);}
+	: or_expr OR and_expr {$$ = new Node(logical_expr_t, or_d, $1, $3);}
 	| and_expr {$$ = $1;}
 	;
 	
 and_expr
-	: and_expr AND bit_or_expr {$$ = new Node(expr_t, "&&", $1, $3);}
+	: and_expr AND bit_or_expr {$$ = new Node(logical_expr_t, and_d, $1, $3);}
 	| bit_or_expr {$$ = $1;}
 	;
 
 bit_or_expr
-	: bit_or_expr '|' bit_xor_expr {$$ = new Node(expr_t, "|", $1, $3);}
+	: bit_or_expr '|' bit_xor_expr {$$ = new Node(calc_expr_t, bit_or_d, $1, $3);}
 	| bit_xor_expr {$$ = $1;}
 	;
 	
 bit_xor_expr
-	: bit_xor_expr '^' bit_and_expr {$$ = new Node(expr_t, "^", $1, $3);}
+	: bit_xor_expr '^' bit_and_expr {$$ = new Node(calc_expr_t, bit_xor_d, $1, $3);}
 	| bit_and_expr {$$ = $1;}
 	;
 	
 bit_and_expr
-	: bit_and_expr '&' equal_expr {$$ = new Node(expr_t, "&", $1, $3);}
+	: bit_and_expr '&' equal_expr {$$ = new Node(calc_expr_t, bit_and_d, $1, $3);}
 	| equal_expr {$$ = $1;}
 	;
 	
 equal_expr
-	: equal_expr EQ greater_less_expr {$$ = new Node(expr_t, "==", $1, $3);}
-	| equal_expr NE greater_less_expr {$$ = new Node(expr_t, "!=", $1, $3);}
+	: equal_expr EQ greater_less_expr {$$ = new Node(comp_expr_t, eq_d, $1, $3);}
+	| equal_expr NE greater_less_expr {$$ = new Node(comp_expr_t, ne_d, $1, $3);}
 	| greater_less_expr {$$ = $1;}
 	;
 	
 greater_less_expr
-	: greater_less_expr LE shift_expr {$$ = new Node(expr_t, "<=", $1, $3);}
-	| greater_less_expr GE shift_expr {$$ = new Node(expr_t, ">=", $1, $3);}
-	| greater_less_expr LT shift_expr {$$ = new Node(expr_t, "<", $1, $3);}
-	| greater_less_expr GT shift_expr {$$ = new Node(expr_t, ">", $1, $3);}
+	: greater_less_expr LE shift_expr {$$ = new Node(comp_expr_t, le_d, $1, $3);}
+	| greater_less_expr GE shift_expr {$$ = new Node(comp_expr_t, ge_d, $1, $3);}
+	| greater_less_expr LT shift_expr {$$ = new Node(comp_expr_t, lt_d, $1, $3);}
+	| greater_less_expr GT shift_expr {$$ = new Node(comp_expr_t, gt_d, $1, $3);}
 	| shift_expr {$$ = $1;}
 	;
 	
 shift_expr
-	: shift_expr LSHIFT add_sub_expr {$$ = new Node(expr_t, "<<", $1, $3);}
-	| shift_expr RSHIFT add_sub_expr {$$ = new Node(expr_t, ">>", $1, $3);}
+	: shift_expr LSHIFT add_sub_expr {$$ = new Node(calc_expr_t, lshift_d, $1, $3);}
+	| shift_expr RSHIFT add_sub_expr {$$ = new Node(calc_expr_t, rshift_d, $1, $3);}
 	| add_sub_expr {$$ = $1;}
 	;
 	
 add_sub_expr
-	: add_sub_expr '+' mul_div_mod_expr {$$ = new Node(expr_t, "+", $1, $3);}
-	| add_sub_expr '-' mul_div_mod_expr {$$ = new Node(expr_t, "-", $1, $3);}
+	: add_sub_expr '+' mul_div_mod_expr {$$ = new Node(calc_expr_t, add_d, $1, $3);}
+	| add_sub_expr '-' mul_div_mod_expr {$$ = new Node(calc_expr_t, sub_d, $1, $3);}
 	| mul_div_mod_expr {$$ = $1;}
 	;
 	
 mul_div_mod_expr
-	: mul_div_mod_expr '*' unary_expr {$$ = new Node(expr_t, "*", $1, $3);}
-	| mul_div_mod_expr '/' unary_expr {$$ = new Node(expr_t, "/", $1, $3);}
-	| mul_div_mod_expr '%' unary_expr {$$ = new Node(expr_t, "%", $1, $3);}
+	: mul_div_mod_expr '*' unary_expr {$$ = new Node(calc_expr_t, mul_d, $1, $3);}
+	| mul_div_mod_expr '/' unary_expr {$$ = new Node(calc_expr_t, div_d, $1, $3);}
+	| mul_div_mod_expr '%' unary_expr {$$ = new Node(calc_expr_t, mod_d, $1, $3);}
 	| unary_expr {$$ = $1;}
 	;
 	
 unary_expr
-	: unary_op unary_expr {$$ = $1; $$->addChild($2);}
+	: unary_op unary_expr {$$ = new Node(unary_expr_t, $1->getOp(), $2);}
 	| postfix_expr {$$ = $1;}
 	;
 	
 postfix_expr
-	: postfix_expr '[' expr ']' {$$ = new Node(expr_t, "[ ]", $1, $3);}
-	| postfix_expr '(' expr ')' {$$ = new Node(expr_t, "( )", $1, $3);}
-	| postfix_expr '(' ')' {$$ = new Node(expr_t, "( )", $1);}
-	| postfix_expr INC {$$ = new Node(expr_t, "++", $1);}
-	| postfix_expr DEC {$$ = new Node(expr_t, "--", $1);}
+	: postfix_expr INC {$$ = new Node(post_expr_t, post_inc_d, $1);}
+	| postfix_expr DEC {$$ = new Node(post_expr_t, post_dec_d, $1);}
 	| basic_expr {$$ = $1;}
 	;
 
 basic_expr
-	: ID {$$ = $1;}
+	: ID {$$ = $1; $$->setValType($$->symbolCheck($$->getString())->val_type);}
 	| val {$$ = $1;}
 	| '(' expr ')' {$$ = $2;}
 	;
 
 assign_op
-	: '=' {$$ = new Node(expr_t, "=");}
-	| ADDASSIGN {$$ = new Node(expr_t, "+=");}
-	| SUBASSIGN {$$ = new Node(expr_t, "-=");}
-	| MULASSIGN {$$ = new Node(expr_t, "*=");}
-	| DIVASSIGN {$$ = new Node(expr_t, "/=");}
-	| MODASSIGN {$$ = new Node(expr_t, "%=");}
-	| ANDASSIGN {$$ = new Node(expr_t, "&=");}
-	| ORASSIGN {$$ = new Node(expr_t, "|=");}
-	| XORASSIGN {$$ = new Node(expr_t, "^=");}
-	| REVASSIGN {$$ = new Node(expr_t, "~=");}
-	| LSHIFTASSIGN {$$ = new Node(expr_t, "<<=");}
-	| RSHIFTASSIGN {$$ = new Node(expr_t, ">>=");}
+	: '=' {$$ = new Node(temp_expr_t, assign_d);}
+	| ADDASSIGN {$$ = new Node(temp_expr_t, addassign_d);}
+	| SUBASSIGN {$$ = new Node(temp_expr_t, subassign_d);}
+	| MULASSIGN {$$ = new Node(temp_expr_t, mulassign_d);}
+	| DIVASSIGN {$$ = new Node(temp_expr_t, divassign_d);}
+	| MODASSIGN {$$ = new Node(temp_expr_t, modassign_d);}
+	| ANDASSIGN {$$ = new Node(temp_expr_t, andassign_d);}
+	| ORASSIGN {$$ = new Node(temp_expr_t, orassign_d);}
+	| XORASSIGN {$$ = new Node(temp_expr_t, xorassign_d);}
+	| REVASSIGN {$$ = new Node(temp_expr_t, revassign_d);}
+	| LSHIFTASSIGN {$$ = new Node(temp_expr_t, lshiftassign_d);}
+	| RSHIFTASSIGN {$$ = new Node(temp_expr_t, rshiftassign_d);}
 	;
 
 unary_op
-	: '+' {$$ = new Node(expr_t, "+");}
-	| '-' {$$ = new Node(expr_t, "-");}
-	| '~' {$$ = new Node(expr_t, "~");}
-	| '!' {$$ = new Node(expr_t, "!");}
-	| INC {$$ = new Node(expr_t, "++");}
-	| DEC {$$ = new Node(expr_t, "--");}
+	: '+' {$$ = new Node(temp_expr_t, pos_d);}
+	| '-' {$$ = new Node(temp_expr_t, neg_d);}
+	| '~' {$$ = new Node(temp_expr_t, rev_d);}
+	| '!' {$$ = new Node(temp_expr_t, not_d);}
+	| INC {$$ = new Node(temp_expr_t, pre_inc_d);}
+	| DEC {$$ = new Node(temp_expr_t, pre_dec_d);}
 	;
 
 val
@@ -337,23 +266,17 @@ val
 // statement
 
 stmt
-	: jmp_stmt {if (entered) returnScope(); $$ = $1;}
-	| loop_stmt {if (entered) returnScope(); $$ = $1;}
-	| expr_stmt {if (entered) returnScope(); $$ = $1;}
+	: loop_stmt {if (entered) returnScope(); $$ = $1;}
+	| expr_stmt {$$ = $1;}
 	| compound_stmt {$$ = $1;}
 	| conditional_stmt {if (entered) returnScope(); $$ = $1;}
-	;
-	
-jmp_stmt
-	: RETURN expr ';' {$$ = new Node(return_stmt_t);}
-	| RETURN ';' {$$ = new Node(return_stmt_t);}
 	;
 
 loop_stmt
 	: WHILE '(' expr ')' stmt {$$ = new Node(while_stmt_t, $3, $5);}
 	| DO stmt WHILE '(' expr ')' {$$ = new Node(dowhile_stmt_t, $2, $5);}
-	| FOR '(' expr_stmt expr_stmt expr ')' stmt {$$ = new Node(for_stmt_t, $2, $3, $4, $6);}
-	| FOR '(' expr_stmt expr_stmt ')' stmt {$$ = new Node(for_stmt_t, $2, $3, $5);}
+	| FOR '(' expr_stmt expr_stmt expr ')' stmt {$$ = new Node(for_stmt_t, $3, $4, $5, $7);}
+	| FOR '(' expr_stmt expr_stmt ')' stmt {$$ = new Node(for_stmt_t, $3, $4, $6);}
 	;
 
 expr_stmt
@@ -384,7 +307,7 @@ stmt_decl_list
 // programs section
 
 void myparser::yyerror(const char YYFAR* text) {
-	cout << "Syntax error at: row(" << row_count << "), column(" << col_count << ")" << endl;
+	cerr << "Syntax error at: row(" << row_count << "), column(" << col_count << ")" << endl;
 }
 
 int main()
