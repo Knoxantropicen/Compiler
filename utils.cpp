@@ -252,7 +252,18 @@ void Node::exprTypeCheck() {
 }
 
 void Node::stmtTypeCheck() {
-
+	switch (type) {
+	case while_stmt_t:
+	case dowhile_stmt_t:
+	case if_stmt_t:
+		if (getChild(0)->getValType() != bool_vt)
+			typeError("Non-boolean condition");
+		break;
+	case for_stmt_t:
+		if (getChild(1)->getValType() != bool_vt)
+			typeError("Non-boolean condition");
+		break;
+	}
 }
 
 SymbolEntry * Node::symbolCheck(string id_name) const {

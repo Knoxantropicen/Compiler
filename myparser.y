@@ -274,7 +274,7 @@ stmt
 
 loop_stmt
 	: WHILE '(' expr ')' stmt {$$ = new Node(while_stmt_t, $3, $5);}
-	| DO stmt WHILE '(' expr ')' {$$ = new Node(dowhile_stmt_t, $2, $5);}
+	| DO stmt WHILE '(' expr ')' {$$ = new Node(dowhile_stmt_t, $5, $2);}
 	| FOR '(' expr_stmt expr_stmt expr ')' stmt {$$ = new Node(for_stmt_t, $3, $4, $5, $7);}
 	| FOR '(' expr_stmt expr_stmt ')' stmt {$$ = new Node(for_stmt_t, $3, $4, $6);}
 	;
