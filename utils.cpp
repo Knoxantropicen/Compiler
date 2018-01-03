@@ -298,33 +298,50 @@ void Tree::gen_label_recr(Node * node) {
 void Tree::gen_stmt_label(Node * node) {
 	switch (node->type) {
 		case while_stmt_t: {
-			Node * expr = node->children[0], * stmt = node->children[1];
+			Node * cond = node->children[0], * stmt = node->children[1];
 			node->label.begin_lb = new_label();
-			expr->label.true_lb = new_label();
+			cond->label.true_lb = new_label();
 			if (node->label.next_lb == "")
 				node->label.next_lb = new_label();
-			expr->label.false_lb = node->label.next_lb;
+			cond->label.false_lb = node->label.next_lb;
 			stmt->label.next_lb = node->label.begin_lb;
 			// code
 			break;
 		}
 		case for_stmt_t: {
+			Node * init = node->children[0], * cond = node->children[1];
+			init->label.next_lb = new_label();
+			if (node->label.next_lb == "")
+				node->label.next_lb = new_label();
 
-			// code
+			if (node->children.size() == 3) {
+				Node * stmt = node->children[2];
+				cond->label.true_lb = new_label();
+				cond->label.false_lb = node->label.next_lb;
+				stmt->label.next_lb = init->label.next_lb;
+				// code
+			}
+			else { // size == 4
+				Node * expr = node->children[2], * stmt = node->children[3];
+				cond->label.true_lb = new_label();
+				cond->label.false_lb = node->label.next_lb;
+				expr->label.next_lb = init->label.next_lb;
+				// code
+			}
 			break;
 		}
 		case if_stmt_t: {
-			Node * expr = node->children[0], * stmt = node->children[1];
-			expr->label.true_lb = new_label();
+			Node * cond = node->children[0], * stmt = node->children[1];
+			cond->label.true_lb = new_label();
 			if (node->label.next_lb == "") node->label.next_lb = new_label();
-			expr->label.false_lb = stmt->label.next_lb = node->label.next_lb;
+			cond->label.false_lb = stmt->label.next_lb = node->label.next_lb;
 			// code
 			break;
 		}
 		case if_else_stmt_t: {
-			Node * expr = node->children[0], * stmt1 = node->children[1], * stmt2 = node->children[2];
-			expr->label.true_lb = new_label();
-			expr->label.false_lb = new_label();
+			Node * cond = node->children[0], * stmt1 = node->children[1], * stmt2 = node->children[2];
+			cond->label.true_lb = new_label();
+			cond->label.false_lb = new_label();
 			if (node->label.next_lb == "") node->label.next_lb = new_label();
 			stmt1->label.next_lb = stmt2->label.next_lb = node->label.next_lb;
 			// code
