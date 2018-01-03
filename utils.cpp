@@ -94,6 +94,10 @@ Node::Node(NodeType init_type, Node * child1, Node * child2, Node * child3, Node
 	if (child4) children.push_back(child4);
 	val_type = void_vt;
 	stmtTypeCheck();
+	label.begin_lb = "";
+	label.next_lb = "";
+	label.true_lb = "";
+	label.false_lb = "";
 }
 Node::Node(NodeType init_type, int int_data, Node * child1, Node * child2, Node * child3, Node * child4) : Node(init_type, child1, child2, child3, child4) {
 	data.int_v = int_data;
@@ -252,13 +256,12 @@ unordered_map<NodeType, string> term_table({
 	{unary_expr_t, "Expression"},
 	{post_expr_t, "Expression"},
 	{temp_expr_t, "Error! Temporary Expression"},
-	{idt_t, "ID Declaration"},
+	{idt_t, "Identifier"},
 	{ival_t, "Const Declaration"},
 	{cval_t, "Const Declaration"},
-	{decl_group_t, "Declaration Group"},
-	{decl_t, "Var Declaration"},
 	{decl_list_t, "Declaration List"},
-	{idt_list_t, "ID Declaration List"},
+	{decl_t, "Var Declaration"},
+	{idt_list_t, "Identifier List"},
 	{func_t, "Function Declaration"},
 	{while_stmt_t, "While Statement"},
 	{dowhile_stmt_t, "Do While Statement"},
@@ -266,5 +269,50 @@ unordered_map<NodeType, string> term_table({
 	{if_stmt_t, "If Statement"},
 	{empty_stmt_t, "Empty Statement"},
 	{compound_stmt_t, "Compound Statement"},
-	{stmt_decl_list_t, "Statement and Declaration List"},
+	{stmt_list_t, "Statement List"},
 });
+
+// tree
+
+Tree::Tree(Node * node): root(node), label_cnt(0) {}
+
+string Tree::new_label() {
+	char lb_idx[10];
+	sprintf(lb_idx, "@%d", label_cnt++);
+	return lb_idx;
+}
+
+// void Tree::gen_stmt_label(Node * node) {
+// 	switch (node->type) {
+// 	case while_stmt_t:
+// 		Node * expr = node->children[0];
+// 		expr->label.true_lb = new_label();
+// 		if (node->label.next_lb == "")
+// 			node->label.next_lb = new_label();
+// 		expr->label.false_lb = node->label.next_lb;
+// 	case for_stmt_t:
+// 	case if_stmt_t:
+// 		Node * expr = node->children[0], * stmt1 = node->children[1], * stmt2;
+// 		if (node->children.size() == 3) stmt2 = node->children[2];
+// 		expr->label.true_lb = new_label();
+// 		if (node->label.next_lb == "") node->label.next_lb = new_label();
+
+// 	}
+// }
+
+// void Tree::gen_expr_label(Node * node) {
+// 	NodeType node_type = node->type;
+// 	if (node_type >= expr_t && node_type <= post_expr_t) {
+// 		Node * child1 = node->children[0], * child2 = node->children[1], * child3;
+// 		switch (node->data.op_v) {
+// 		case ternary_d:
+
+// 		}
+// 	}
+// 	else if (node_type == decl_t) {
+
+// 	}
+// 	else if (node_type >= while_stmt_t && node_type <= compound_stmt_t) {
+
+// 	}
+// }

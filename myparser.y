@@ -103,7 +103,7 @@ program
 	;
 	
 blocks
-	: decl_group func {$$ = new Node(program_t, $1, $2);}
+	: decl_list func {$$ = new Node(program_t, $1, $2);}
 	| func {$$ = new Node(program_t, $1);}
 	;
 
@@ -116,18 +116,18 @@ type
 
 // declaration
 
-decl_group
-	: decl_group decl {$$ = new Node(decl_group_t, $1, $2);}
+decl_list
+	: decl_list decl {$$ = new Node(decl_list_t, $1, $2);}
 	| decl {$$ = $1;}
 	;
 
 decl
-	: type decl_list ';' {$$ = new Node(decl_t, $1, $2); declInsertEntry($2, vt_converter[string($1->data.string_v)]);}
+	: type id_list ';' {$$ = new Node(decl_t, $1, $2); declInsertEntry($2, vt_converter[string($1->data.string_v)]);}
 	| type ';' {$$ = new Node(decl_t, $1);}
 	;
 	
-decl_list
-	: decl_list ',' ID {$$ = new Node(decl_list_t, $1, $3);}
+id_list
+	: id_list ',' ID {$$ = new Node(idt_list_t, $1, $3);}
 	| ID {$$ = $1;}
 	;
 	
@@ -285,7 +285,9 @@ expr_stmt
 	;
 	
 compound_stmt
-	: '{' stmt_decl_list '}' {$$ = new Node(compound_stmt_t, $2); returnScope();}
+	: '{' decl_list stmt_list '}' {$$ = new Node(compound_stmt_t, $2, $3); returnScope();}
+	| '{' decl_list '}' {$$ = new Node(compound_stmt_t, $2); returnScope();}
+	| '{' stmt_list '}' {$$ = new Node(compound_stmt_t, $2); returnScope();}
 	| '{' '}' {$$ = new Node(compound_stmt_t); returnScope();}
 	;
 	
@@ -294,11 +296,9 @@ conditional_stmt
 	| IF '(' expr ')' stmt %prec NO_ELSE {$$ = new Node(if_stmt_t, $3, $5);}
 	;
 	
-stmt_decl_list
-	: stmt_decl_list stmt {$$ = new Node(stmt_decl_list_t, $1, $2);}
-	| stmt_decl_list decl {$$ = new Node(stmt_decl_list_t, $1, $2);}
+stmt_list
+	: stmt_list stmt {$$ = new Node(stmt_list_t, $1, $2);}
 	| stmt {$$ = $1;}
-	| decl {$$ = $1;}
 	;
 	
 %%

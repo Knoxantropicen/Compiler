@@ -87,9 +87,8 @@ enum NodeType {
 	idt_t,
 	ival_t,
 	cval_t,
-	decl_group_t,
-	decl_t,
 	decl_list_t,
+	decl_t,
 	idt_list_t,
 	func_t,
 	while_stmt_t,
@@ -98,7 +97,7 @@ enum NodeType {
 	if_stmt_t,
 	empty_stmt_t,
 	compound_stmt_t,
-	stmt_decl_list_t,
+	stmt_list_t,
 };
 
 union NodeData {
@@ -109,12 +108,12 @@ union NodeData {
 
 union Label {
 	struct {
-		string begin_lb;
-		string next_lb;
+		char * begin_lb;
+		char * next_lb;
 	};
 	struct {
-		string true_lb;
-		string false_lb;
+		char * true_lb;
+		char * false_lb;
 	};
 };
 
@@ -126,18 +125,21 @@ public:
 	Node(NodeType, Operator, Node * child1 = NULL, Node * child2 = NULL, Node * child3 = NULL, Node * child4 = NULL);
 	unsigned int traverse() const;
 	SymbolEntry * symbolCheck(string) const;
-	void addChild(Node *);
 	void exprTypeCheck();
 	void stmtTypeCheck();
 	void typeError(const char *) const;
 	bool checkID(Node *) const;
+
 	NodeType type;
 	NodeValType val_type;
 	NodeData data;
 	vector<Node *> children;
+	Node * sibling;
 	SymbolTable * table;
 	SymbolEntry * entry;
 	unsigned int row, col;
+
+	Label label;
 };
 
 extern unsigned int row_count, col_count;
@@ -148,10 +150,14 @@ extern unsigned int node_id;
 extern unordered_map<NodeType, string> term_table;
 
 // tree
+
 class Tree {
 public:
 	Tree(Node *);
-	void gen_label();
+	string new_label();
+	void gen_stmt_label(Node *);
+	void gen_expr_label(Node *);
 private:
 	Node * root;
+	int label_cnt;
 };
