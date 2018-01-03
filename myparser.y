@@ -317,12 +317,12 @@ int main()
 			lexer.yyin = &in;
 			n = parser.yyparse();
 			
-			cout << "Grammar Tree:" << endl;
-			root_node->traverse();
-			cout << endl;
+			// cout << "Grammar Tree:" << endl;
+			// root_node->traverse();
+			// cout << endl;
 			
-			outputTables();
-			cout << endl;
+			// outputTables();
+			// cout << endl;
 			
 			Tree tree(root_node);
 			tree.gen_label();

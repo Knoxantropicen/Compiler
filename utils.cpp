@@ -253,8 +253,8 @@ unordered_map<NodeType, string> term_table({
 	{assign_expr_t, "Expression"},
 	{ternary_expr_t, "Expression"},
 	{logical_expr_t, "Expression"},
-	{calc_expr_t, "Expression"},
 	{comp_expr_t, "Expression"},
+	{calc_expr_t, "Expression"},
 	{unary_expr_t, "Expression"},
 	{post_expr_t, "Expression"},
 	{temp_expr_t, "Error! Temporary Expression"},
@@ -291,8 +291,10 @@ void Tree::gen_label() {
 
 void Tree::gen_label_recr(Node * node) {
 	NodeType node_type = node->type;
-	if (node_type >= expr_t && node_type <= post_expr_t) gen_expr_label(node);
-	if (node_type >= while_stmt_t && node_type <= compound_stmt_t) gen_stmt_label(node);
+	if (node_type >= logical_expr_t && node_type <= unary_expr_t) gen_expr_label(node);
+	else if (node_type >= ternary_expr_t && node_type <= if_else_stmt_t) gen_stmt_label(node);
+	for (auto child: node->children)
+		gen_label_recr(child);
 }
 
 void Tree::gen_stmt_label(Node * node) {
@@ -305,7 +307,7 @@ void Tree::gen_stmt_label(Node * node) {
 				node->label.next_lb = new_label();
 			cond->label.false_lb = node->label.next_lb;
 			stmt->label.next_lb = node->label.begin_lb;
-			// code
+			// node.code = code.begin_lb: || cond.code || cond.true_lb: || stmt.code || goto node.begin_lb
 			break;
 		}
 		case for_stmt_t: {
@@ -319,14 +321,14 @@ void Tree::gen_stmt_label(Node * node) {
 				cond->label.true_lb = new_label();
 				cond->label.false_lb = node->label.next_lb;
 				stmt->label.next_lb = init->label.next_lb;
-				// code
+				// node.code = init.code || init.next_lb: || cond.code || cond.true_lb: || stmt.code || goto init.next_lb
 			}
 			else { // size == 4
 				Node * expr = node->children[2], * stmt = node->children[3];
 				cond->label.true_lb = new_label();
 				cond->label.false_lb = node->label.next_lb;
 				expr->label.next_lb = init->label.next_lb;
-				// code
+				// node.code = init.code || init.next_lb: || cond.code || cond.true_lb: || stmt.code || expr.code || goto init.next_lb
 			}
 			break;
 		}
@@ -335,34 +337,46 @@ void Tree::gen_stmt_label(Node * node) {
 			cond->label.true_lb = new_label();
 			if (node->label.next_lb == "") node->label.next_lb = new_label();
 			cond->label.false_lb = stmt->label.next_lb = node->label.next_lb;
-			// code
+			// node.code = cond.code || cond.true_lb: || stmt.code
 			break;
 		}
+		case ternary_expr_t:
 		case if_else_stmt_t: {
 			Node * cond = node->children[0], * stmt1 = node->children[1], * stmt2 = node->children[2];
 			cond->label.true_lb = new_label();
 			cond->label.false_lb = new_label();
 			if (node->label.next_lb == "") node->label.next_lb = new_label();
 			stmt1->label.next_lb = stmt2->label.next_lb = node->label.next_lb;
-			// code
+			// node.code = cond.code || cond.true_lb: || stmt1.code || goto node.next_lb || cond.false_lb: || stmt2.code
 			break;
 		}
 	}
 }
 
 void Tree::gen_expr_label(Node * node) {
-	// NodeType node_type = node->type;
-	// if (node_type >= expr_t && node_type <= post_expr_t) {
-	// 	Node * child1 = node->children[0], * child2 = node->children[1], * child3;
-	// 	switch (node->data.op_v) {
-	// 	case ternary_d:
-
-	// 	}
-	// }
-	// else if (node_type == decl_t) {
-
-	// }
-	// else if (node_type >= while_stmt_t && node_type <= compound_stmt_t) {
-
-	// }
+	switch (node->data.op_v) {
+		case or_d: {
+			Node * cond1 = node->children[0], * cond2 = node->children[1];
+			cond1->label.true_lb = cond2->label.true_lb = node->label.true_lb;
+			cond1->label.false_lb = new_label();
+			cond2->label.false_lb = node->label.false_lb;
+			// node.code = cond1.code || cond1.false_lb: || cond2.code
+			break;
+		}
+		case and_d: {
+			Node * cond1 = node->children[0], * cond2 = node->children[1];
+			cond1->label.true_lb = new_label();
+			cond1->label.false_lb = cond2->label.false_lb = node->label.false_lb;
+			cond2->label.true_lb = node->label.true_lb;
+			// node.code = cond1.code || cond1.true_lb: || cond2.code
+			break;
+		}
+		case not_d: {
+			Node * cond = node->children[0];
+			cond->label.true_lb = node->label.false_lb;
+			cond->label.false_lb = node->label.true_lb;
+			// node.code = cond.code
+			break;
+		}
+	}
 }
