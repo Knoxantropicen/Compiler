@@ -77,7 +77,7 @@ void debug() {
 
 // place any declarations here
 %token INT CHAR
-%token WHILE DO FOR
+%token WHILE FOR
 %token IF
 %nonassoc NO_ELSE
 %nonassoc ELSE
@@ -97,14 +97,10 @@ void debug() {
 
 /////////////////////////////////////////////////////////////////////////////
 // rules section
-
-program
-	: blocks {$$ = $1; cout << "Grammar Tree:" << endl; $$->traverse(); cout << endl; outputTables(); cout << endl;}
-	;
 	
-blocks
-	: decl_list func {$$ = new Node(program_t, $1, $2);}
-	| func {$$ = new Node(program_t, $1);}
+program
+	: decl_list func {root_node = new Node(program_t, $1, $2);}
+	| func {root_node = new Node(program_t, $1);}
 	;
 
 // data type
@@ -274,7 +270,6 @@ stmt
 
 loop_stmt
 	: WHILE '(' expr ')' stmt {$$ = new Node(while_stmt_t, $3, $5);}
-	| DO stmt WHILE '(' expr ')' {$$ = new Node(dowhile_stmt_t, $5, $2);}
 	| FOR '(' expr_stmt expr_stmt expr ')' stmt {$$ = new Node(for_stmt_t, $3, $4, $5, $7);}
 	| FOR '(' expr_stmt expr_stmt ')' stmt {$$ = new Node(for_stmt_t, $3, $4, $6);}
 	;
@@ -292,7 +287,7 @@ compound_stmt
 	;
 	
 conditional_stmt
-	: IF '(' expr ')' stmt ELSE stmt {$$ = new Node(if_stmt_t, $3, $5, $7);}
+	: IF '(' expr ')' stmt ELSE stmt {$$ = new Node(if_else_stmt_t, $3, $5, $7);}
 	| IF '(' expr ')' stmt %prec NO_ELSE {$$ = new Node(if_stmt_t, $3, $5);}
 	;
 	
@@ -321,6 +316,16 @@ int main()
 		if (lexer.yycreate(&parser)) {
 			lexer.yyin = &in;
 			n = parser.yyparse();
+			
+			cout << "Grammar Tree:" << endl;
+			root_node->traverse();
+			cout << endl;
+			
+			outputTables();
+			cout << endl;
+			
+			Tree tree(root_node);
+			tree.gen_label();
 		}
 	}
 	system("pause");

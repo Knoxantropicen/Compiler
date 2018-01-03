@@ -54,7 +54,6 @@ id 			({letter}|_)+({letter}|{digit}|_)*
 "int"			{moveRight; return INT;}
 "char"			{moveRight; return CHAR;}
 "while"			{moveRight; return WHILE;}
-"do"			{moveRight; return DO;}
 "for"			{moveRight; return FOR;}
 "if"			{moveRight; return IF;}
 "else"			{moveRight; return ELSE;}

@@ -125,23 +125,23 @@ unsigned int Node::traverse() const {
 	cout << node_id << ": " << term_table[type] << ", ";
 	// find type output
 	switch (type) {
-	case type_t:
-		cout << data.string_v << ", "; break;
-	case expr_t:
-	case assign_expr_t:
-	case ternary_expr_t:
-	case logical_expr_t:
-	case calc_expr_t:
-	case comp_expr_t:
-	case unary_expr_t:
-	case post_expr_t:
-		cout << "op: " << op_converter[data.op_v] << ", "; break;
-	case idt_t:
-		cout << "symbol: " << data.string_v << ", "; break;
-	case ival_t:
-		cout << "value: " << data.int_v << ", "; break;
-	case cval_t:
-		cout << "value: " << data.string_v << ", "; break;
+		case type_t:
+			cout << data.string_v << ", "; break;
+		case expr_t:
+		case assign_expr_t:
+		case ternary_expr_t:
+		case logical_expr_t:
+		case calc_expr_t:
+		case comp_expr_t:
+		case unary_expr_t:
+		case post_expr_t:
+			cout << "op: " << op_converter[data.op_v] << ", "; break;
+		case idt_t:
+			cout << "symbol: " << data.string_v << ", "; break;
+		case ival_t:
+			cout << "value: " << data.int_v << ", "; break;
+		case cval_t:
+			cout << "value: " << data.string_v << ", "; break;
 	}
 	cout << "Children: ";
 	if (!children_ids.empty()) for (auto c_id: children_ids) cout << c_id << " ";
@@ -151,66 +151,66 @@ unsigned int Node::traverse() const {
 
 void Node::exprTypeCheck() {
 	switch (type) {
-	case assign_expr_t:
-		val_type = symbolCheck(string(children[0]->data.string_v))->val_type;
-		if (val_type != children[1]->val_type)
-			typeError("Types unequal in assignment");
-		if (val_type != int_vt && data.op_v != assign_d)
-			typeError("Invalid calculation on non-integer type");
-		break;
-	case ternary_expr_t:
-		val_type = children[1]->val_type;
-		if (val_type != children[2]->val_type)
-			typeError("Types unequal in ternary expression");
-		break;
-	case logical_expr_t:
-		val_type = bool_vt;
-		if (children[0]->val_type != bool_vt || children[1]->val_type != bool_vt)
-			typeError("Invalid logical expression");
-		break;
-	case calc_expr_t:
-		val_type = int_vt;
-		if (children[0]->val_type != int_vt || children[1]->val_type != int_vt)
-			typeError("Invalid calculation on non-integer type");
-		break;
-	case comp_expr_t:
-		val_type = bool_vt;
-		if (children[0]->val_type != children[1]->val_type)
-			typeError("Types unequal in comparement");
-		break;
-	case unary_expr_t:
-		val_type = children[0]->val_type;
-		if (val_type == bool_vt && data.op_v != not_d)
-			typeError("Invalid calculation on non-integer type");
-		else if (val_type == int_vt && data.op_v == not_d)
-			typeError("Invalid logical operation on integer");
-		else if (val_type == char_vt)
-			typeError("Invalid unary operation");
-		if (!checkID(children[0]))
-			typeError("Expression is not assignable");
-		break;
-	case post_expr_t:
-		val_type = children[0]->val_type;
-		if (val_type != int_vt)
-			typeError("Invalid calculation on non-interger type");
-		if (!checkID(children[0]))
-			typeError("Expression is not assignable");
-		break;
+		case assign_expr_t:
+			val_type = symbolCheck(string(children[0]->data.string_v))->val_type;
+			if (val_type != children[1]->val_type)
+				typeError("Types unequal in assignment");
+			if (val_type != int_vt && data.op_v != assign_d)
+				typeError("Invalid calculation on non-integer type");
+			break;
+		case ternary_expr_t:
+			val_type = children[1]->val_type;
+			if (val_type != children[2]->val_type)
+				typeError("Types unequal in ternary expression");
+			break;
+		case logical_expr_t:
+			val_type = bool_vt;
+			if (children[0]->val_type != bool_vt || children[1]->val_type != bool_vt)
+				typeError("Invalid logical expression");
+			break;
+		case calc_expr_t:
+			val_type = int_vt;
+			if (children[0]->val_type != int_vt || children[1]->val_type != int_vt)
+				typeError("Invalid calculation on non-integer type");
+			break;
+		case comp_expr_t:
+			val_type = bool_vt;
+			if (children[0]->val_type != children[1]->val_type)
+				typeError("Types unequal in comparement");
+			break;
+		case unary_expr_t:
+			val_type = children[0]->val_type;
+			if (val_type == bool_vt && data.op_v != not_d)
+				typeError("Invalid calculation on non-integer type");
+			else if (val_type == int_vt && data.op_v == not_d)
+				typeError("Invalid logical operation on integer");
+			else if (val_type == char_vt)
+				typeError("Invalid unary operation");
+			if (!checkID(children[0]))
+				typeError("Expression is not assignable");
+			break;
+		case post_expr_t:
+			val_type = children[0]->val_type;
+			if (val_type != int_vt)
+				typeError("Invalid calculation on non-interger type");
+			if (!checkID(children[0]))
+				typeError("Expression is not assignable");
+			break;
 	}
 }
 
 void Node::stmtTypeCheck() {
 	switch (type) {
-	case while_stmt_t:
-	case dowhile_stmt_t:
-	case if_stmt_t:
-		if (children[0]->val_type != bool_vt)
-			typeError("Non-boolean condition");
-		break;
-	case for_stmt_t:
-		if (children[1]->val_type != bool_vt)
-			typeError("Non-boolean condition");
-		break;
+		case while_stmt_t:
+		case if_stmt_t:
+		case if_else_stmt_t:
+			if (children[0]->val_type != bool_vt)
+				typeError("Non-boolean condition");
+			break;
+		case for_stmt_t:
+			if (children[1]->val_type != bool_vt)
+				typeError("Non-boolean condition");
+			break;
 	}
 }
 
@@ -240,6 +240,8 @@ bool Node::checkID(Node * node) const {
 
 unsigned int row_count = 1, col_count = 1;
 
+Node * root_node;
+
 // traverse
 
 unsigned int node_id = 0;
@@ -264,9 +266,9 @@ unordered_map<NodeType, string> term_table({
 	{idt_list_t, "Identifier List"},
 	{func_t, "Function Declaration"},
 	{while_stmt_t, "While Statement"},
-	{dowhile_stmt_t, "Do While Statement"},
 	{for_stmt_t, "For Statement"},
 	{if_stmt_t, "If Statement"},
+	{if_else_stmt_t, "If Else Statement"},
 	{empty_stmt_t, "Empty Statement"},
 	{compound_stmt_t, "Compound Statement"},
 	{stmt_list_t, "Statement List"},
@@ -276,43 +278,74 @@ unordered_map<NodeType, string> term_table({
 
 Tree::Tree(Node * node): root(node), label_cnt(0) {}
 
-string Tree::new_label() {
-	char lb_idx[10];
+char * Tree::new_label() {
+	char * lb_idx = new char[10];
 	sprintf(lb_idx, "@%d", label_cnt++);
 	return lb_idx;
 }
 
-// void Tree::gen_stmt_label(Node * node) {
-// 	switch (node->type) {
-// 	case while_stmt_t:
-// 		Node * expr = node->children[0];
-// 		expr->label.true_lb = new_label();
-// 		if (node->label.next_lb == "")
-// 			node->label.next_lb = new_label();
-// 		expr->label.false_lb = node->label.next_lb;
-// 	case for_stmt_t:
-// 	case if_stmt_t:
-// 		Node * expr = node->children[0], * stmt1 = node->children[1], * stmt2;
-// 		if (node->children.size() == 3) stmt2 = node->children[2];
-// 		expr->label.true_lb = new_label();
-// 		if (node->label.next_lb == "") node->label.next_lb = new_label();
+void Tree::gen_label() {
+	root->label.begin_lb = "_start";
+	gen_label_recr(root);
+}
 
-// 	}
-// }
+void Tree::gen_label_recr(Node * node) {
+	NodeType node_type = node->type;
+	if (node_type >= expr_t && node_type <= post_expr_t) gen_expr_label(node);
+	if (node_type >= while_stmt_t && node_type <= compound_stmt_t) gen_stmt_label(node);
+}
 
-// void Tree::gen_expr_label(Node * node) {
-// 	NodeType node_type = node->type;
-// 	if (node_type >= expr_t && node_type <= post_expr_t) {
-// 		Node * child1 = node->children[0], * child2 = node->children[1], * child3;
-// 		switch (node->data.op_v) {
-// 		case ternary_d:
+void Tree::gen_stmt_label(Node * node) {
+	switch (node->type) {
+		case while_stmt_t: {
+			Node * expr = node->children[0], * stmt = node->children[1];
+			node->label.begin_lb = new_label();
+			expr->label.true_lb = new_label();
+			if (node->label.next_lb == "")
+				node->label.next_lb = new_label();
+			expr->label.false_lb = node->label.next_lb;
+			stmt->label.next_lb = node->label.begin_lb;
+			// code
+			break;
+		}
+		case for_stmt_t: {
 
-// 		}
-// 	}
-// 	else if (node_type == decl_t) {
+			// code
+			break;
+		}
+		case if_stmt_t: {
+			Node * expr = node->children[0], * stmt = node->children[1];
+			expr->label.true_lb = new_label();
+			if (node->label.next_lb == "") node->label.next_lb = new_label();
+			expr->label.false_lb = stmt->label.next_lb = node->label.next_lb;
+			// code
+			break;
+		}
+		case if_else_stmt_t: {
+			Node * expr = node->children[0], * stmt1 = node->children[1], * stmt2 = node->children[2];
+			expr->label.true_lb = new_label();
+			expr->label.false_lb = new_label();
+			if (node->label.next_lb == "") node->label.next_lb = new_label();
+			stmt1->label.next_lb = stmt2->label.next_lb = node->label.next_lb;
+			// code
+			break;
+		}
+	}
+}
 
-// 	}
-// 	else if (node_type >= while_stmt_t && node_type <= compound_stmt_t) {
+void Tree::gen_expr_label(Node * node) {
+	// NodeType node_type = node->type;
+	// if (node_type >= expr_t && node_type <= post_expr_t) {
+	// 	Node * child1 = node->children[0], * child2 = node->children[1], * child3;
+	// 	switch (node->data.op_v) {
+	// 	case ternary_d:
 
-// 	}
-// }
+	// 	}
+	// }
+	// else if (node_type == decl_t) {
+
+	// }
+	// else if (node_type >= while_stmt_t && node_type <= compound_stmt_t) {
+
+	// }
+}

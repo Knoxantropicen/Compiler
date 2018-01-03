@@ -92,9 +92,9 @@ enum NodeType {
 	idt_list_t,
 	func_t,
 	while_stmt_t,
-	dowhile_stmt_t,
 	for_stmt_t,
 	if_stmt_t,
+	if_else_stmt_t,
 	empty_stmt_t,
 	compound_stmt_t,
 	stmt_list_t,
@@ -134,7 +134,6 @@ public:
 	NodeValType val_type;
 	NodeData data;
 	vector<Node *> children;
-	Node * sibling;
 	SymbolTable * table;
 	SymbolEntry * entry;
 	unsigned int row, col;
@@ -143,6 +142,8 @@ public:
 };
 
 extern unsigned int row_count, col_count;
+
+extern Node * root_node;
 
 // traverse
 
@@ -154,10 +155,14 @@ extern unordered_map<NodeType, string> term_table;
 class Tree {
 public:
 	Tree(Node *);
-	string new_label();
+	char * new_label();
+	void gen_label();
+	void gen_label_recr(Node *);
 	void gen_stmt_label(Node *);
 	void gen_expr_label(Node *);
 private:
 	Node * root;
 	int label_cnt;
 };
+
+extern Tree tree;
