@@ -310,11 +310,14 @@ int main()
 	tables.insert({root_table, table_count++});
 	int n = 1;
 	ifstream in("code.c");
+	ofstream out("code.asm");
 	mylexer lexer;
 	myparser parser;
 	if (parser.yycreate(&lexer)) {
 		if (lexer.yycreate(&parser)) {
 			lexer.yyin = &in;
+			lexer.yyout = &out;
+
 			n = parser.yyparse();
 			
 			// cout << "Grammar Tree:" << endl;
@@ -326,8 +329,13 @@ int main()
 			
 			Tree tree(root_node);
 			tree.gen_label();
+
+			root_node->traverse();
+			cout << endl;
 		}
 	}
+	in.close();
+	out.close();
 	system("pause");
 	return n;
 }

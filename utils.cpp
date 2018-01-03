@@ -145,7 +145,16 @@ unsigned int Node::traverse() const {
 	}
 	cout << "Children: ";
 	if (!children_ids.empty()) for (auto c_id: children_ids) cout << c_id << " ";
-	cout << ", " << "Row: " << row << ", Col: " << col << endl;
+	cout << ", " << "Row: " << row << ", Col: " << col;
+	if (type >= expr_t && type < ternary_expr_t) {
+		if (label.true_lb != "" || label.false_lb != "")
+			cout << ", Label: True " << label.true_lb << " False " << label.false_lb;
+	}
+	else {
+		if (label.begin_lb != "" || label.next_lb != "")
+			cout << ", Label: Begin " << label.begin_lb << " Next " << label.next_lb;
+	}
+	cout << endl;
 	return node_id++;
 }
 
@@ -276,7 +285,8 @@ unordered_map<NodeType, string> term_table({
 
 // tree
 
-Tree::Tree(Node * node): root(node), label_cnt(0) {}
+Tree::Tree(Node * node) : root(node), label_cnt(0) {}
+ofstream out;
 
 char * Tree::new_label() {
 	char * lb_idx = new char[10];
@@ -379,4 +389,19 @@ void Tree::gen_expr_label(Node * node) {
 			break;
 		}
 	}
+}
+
+void Tree::gen_header_code(ofstream & out) {
+	out << "\t.586" << endl;
+    out << "\t.model flat, stdcall" << endl;
+	out << "\toption casemap :none" << endl;
+	out << endl;
+	out << "\tinclude \\masm32\\include\\windows.inc" << endl;
+	out << "\tinclude \\masm32\\include\\user32.inc" << endl;
+	out << "\tinclude \\masm32\\include\\kernel32.inc" << endl;
+	out << "\tinclude \\masm32\\include\\masm32.inc" << endl;
+	out << endl;
+	out << "\tincludelib \\masm32\\lib\\user32.lib" << endl;
+	out << "\tincludelib \\masm32\\lib\\kernel32.lib" << endl;
+	out << "\tincludelib \\masm32\\lib\\masm32.lib" << endl;
 }

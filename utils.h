@@ -160,9 +160,11 @@ public:
 	void gen_label_recr(Node *);
 	void gen_stmt_label(Node *);
 	void gen_expr_label(Node *);
+	void gen_header_code(ofstream &);
 private:
 	Node * root;
 	int label_cnt;
 };
 
 extern Tree tree;
+extern ofstream out;
