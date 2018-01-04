@@ -18,8 +18,8 @@
 # myparser.v
 # YACC verbose file generated from myparser.y.
 # 
-# Date: 01/03/18
-# Time: 16:41:04
+# Date: 01/04/18
+# Time: 19:42:15
 # 
 # AYACC Version: 2.07
 #############################################################################
@@ -168,10 +168,10 @@ state 0
 	MAIN  shift 3
 
 	func  goto 4
-	type  goto 5
+	decl  goto 5
 	program  goto 6
 	decl_list  goto 7
-	decl  goto 8
+	type  goto 8
 
 
 state 1
@@ -201,13 +201,9 @@ state 4
 
 
 state 5
-	decl : type . id_list ';'
-	decl : type . ';'
+	decl_list : decl .  (6)
 
-	';'  shift 11
-	ID  shift 12
-
-	id_list  goto 13
+	.  reduce 6
 
 
 state 6
@@ -224,15 +220,19 @@ state 7
 	CHAR  shift 2
 	MAIN  shift 3
 
-	func  goto 14
-	type  goto 5
-	decl  goto 15
+	func  goto 11
+	decl  goto 12
+	type  goto 8
 
 
 state 8
-	decl_list : decl .  (6)
+	decl : type . id_list ';'
+	decl : type . ';'
 
-	.  reduce 6
+	';'  shift 13
+	ID  shift 14
+
+	id_list  goto 15
 
 
 state 9
@@ -248,35 +248,35 @@ state 10
 
 
 state 11
-	decl : type ';' .  (8)
-
-	.  reduce 8
-
-
-state 12
-	id_list : ID .  (10)
-
-	.  reduce 10
-
-
-state 13
-	decl : type id_list . ';'
-	id_list : id_list . ',' ID
-
-	','  shift 18
-	';'  shift 19
-
-
-state 14
 	program : decl_list func .  (1)
 
 	.  reduce 1
 
 
-state 15
+state 12
 	decl_list : decl_list decl .  (5)
 
 	.  reduce 5
+
+
+state 13
+	decl : type ';' .  (8)
+
+	.  reduce 8
+
+
+state 14
+	id_list : ID .  (10)
+
+	.  reduce 10
+
+
+state 15
+	decl : type id_list . ';'
+	id_list : id_list . ',' ID
+
+	','  shift 18
+	';'  shift 19
 
 
 state 16
@@ -316,8 +316,8 @@ state 20
 state 21
 	compound_stmt : '{' . decl_list stmt_list '}'
 	compound_stmt : '{' . '}'
-	compound_stmt : '{' . decl_list '}'
 	compound_stmt : '{' . stmt_list '}'
+	compound_stmt : '{' . decl_list '}'
 
 	'!'  shift 25
 	'('  shift 26
@@ -338,33 +338,33 @@ state 21
 	CHARVAL  shift 39
 	ID  shift 40
 
-	type  goto 5
+	decl  goto 5
 	decl_list  goto 41
-	decl  goto 8
-	or_expr  goto 42
-	expr  goto 43
+	type  goto 8
+	ternary_expr  goto 42
+	or_expr  goto 43
 	compound_stmt  goto 44
-	assign_expr  goto 45
-	const_expr  goto 46
-	ternary_expr  goto 47
-	unary_op  goto 48
-	bit_or_expr  goto 49
-	equal_expr  goto 50
-	shift_expr  goto 51
-	mul_div_mod_expr  goto 52
-	greater_less_expr  goto 53
+	expr  goto 45
+	assign_expr  goto 46
+	const_expr  goto 47
+	basic_expr  goto 48
+	shift_expr  goto 49
+	stmt  goto 50
+	conditional_stmt  goto 51
+	expr_stmt  goto 52
+	unary_op  goto 53
 	add_sub_expr  goto 54
-	bit_xor_expr  goto 55
-	and_expr  goto 56
-	bit_and_expr  goto 57
-	unary_expr  goto 58
-	expr_stmt  goto 59
-	conditional_stmt  goto 60
-	val  goto 61
-	loop_stmt  goto 62
-	postfix_expr  goto 63
-	basic_expr  goto 64
-	stmt  goto 65
+	loop_stmt  goto 55
+	mul_div_mod_expr  goto 56
+	unary_expr  goto 57
+	val  goto 58
+	postfix_expr  goto 59
+	bit_and_expr  goto 60
+	equal_expr  goto 61
+	greater_less_expr  goto 62
+	bit_or_expr  goto 63
+	and_expr  goto 64
+	bit_xor_expr  goto 65
 	stmt_list  goto 66
 
 
@@ -406,25 +406,25 @@ state 26
 	CHARVAL  shift 39
 	ID  shift 40
 
-	or_expr  goto 42
+	ternary_expr  goto 42
+	or_expr  goto 43
 	expr  goto 67
-	assign_expr  goto 45
-	const_expr  goto 46
-	ternary_expr  goto 47
-	unary_op  goto 48
-	bit_or_expr  goto 49
-	equal_expr  goto 50
-	shift_expr  goto 51
-	mul_div_mod_expr  goto 52
-	greater_less_expr  goto 53
+	assign_expr  goto 46
+	const_expr  goto 47
+	basic_expr  goto 48
+	shift_expr  goto 49
+	unary_op  goto 53
 	add_sub_expr  goto 54
-	bit_xor_expr  goto 55
-	and_expr  goto 56
-	bit_and_expr  goto 57
-	unary_expr  goto 58
-	val  goto 61
-	postfix_expr  goto 63
-	basic_expr  goto 64
+	mul_div_mod_expr  goto 56
+	unary_expr  goto 57
+	val  goto 58
+	postfix_expr  goto 59
+	bit_and_expr  goto 60
+	equal_expr  goto 61
+	greater_less_expr  goto 62
+	bit_or_expr  goto 63
+	and_expr  goto 64
+	bit_xor_expr  goto 65
 
 
 state 27
@@ -470,15 +470,15 @@ state 33
 
 
 state 34
-	loop_stmt : FOR . '(' expr_stmt expr_stmt ')' stmt
 	loop_stmt : FOR . '(' expr_stmt expr_stmt expr ')' stmt
+	loop_stmt : FOR . '(' expr_stmt expr_stmt ')' stmt
 
 	'('  shift 69
 
 
 state 35
-	conditional_stmt : IF . '(' expr ')' stmt ELSE stmt
 	conditional_stmt : IF . '(' expr ')' stmt
+	conditional_stmt : IF . '(' expr ')' stmt ELSE stmt
 
 	'('  shift 70
 
@@ -552,36 +552,42 @@ state 41
 	CHARVAL  shift 39
 	ID  shift 40
 
-	type  goto 5
-	decl  goto 15
-	or_expr  goto 42
-	expr  goto 43
+	decl  goto 12
+	type  goto 8
+	ternary_expr  goto 42
+	or_expr  goto 43
 	compound_stmt  goto 44
-	assign_expr  goto 45
-	const_expr  goto 46
-	ternary_expr  goto 47
-	unary_op  goto 48
-	bit_or_expr  goto 49
-	equal_expr  goto 50
-	shift_expr  goto 51
-	mul_div_mod_expr  goto 52
-	greater_less_expr  goto 53
+	expr  goto 45
+	assign_expr  goto 46
+	const_expr  goto 47
+	basic_expr  goto 48
+	shift_expr  goto 49
+	stmt  goto 50
+	conditional_stmt  goto 51
+	expr_stmt  goto 52
+	unary_op  goto 53
 	add_sub_expr  goto 54
-	bit_xor_expr  goto 55
-	and_expr  goto 56
-	bit_and_expr  goto 57
-	unary_expr  goto 58
-	expr_stmt  goto 59
-	conditional_stmt  goto 60
-	val  goto 61
-	loop_stmt  goto 62
-	postfix_expr  goto 63
-	basic_expr  goto 64
-	stmt  goto 65
+	loop_stmt  goto 55
+	mul_div_mod_expr  goto 56
+	unary_expr  goto 57
+	val  goto 58
+	postfix_expr  goto 59
+	bit_and_expr  goto 60
+	equal_expr  goto 61
+	greater_less_expr  goto 62
+	bit_or_expr  goto 63
+	and_expr  goto 64
+	bit_xor_expr  goto 65
 	stmt_list  goto 85
 
 
 state 42
+	const_expr : ternary_expr .  (17)
+
+	.  reduce 17
+
+
+state 43
 	or_expr : or_expr . OR and_expr
 	ternary_expr : or_expr . '?' ternary_expr ':' ternary_expr
 	ternary_expr : or_expr .  (19)
@@ -591,14 +597,6 @@ state 42
 	.  reduce 19
 
 
-state 43
-	expr : expr . ',' assign_expr
-	expr_stmt : expr . ';'
-
-	','  shift 88
-	';'  shift 89
-
-
 state 44
 	stmt : compound_stmt .  (78)
 
@@ -606,24 +604,60 @@ state 44
 
 
 state 45
+	expr : expr . ',' assign_expr
+	expr_stmt : expr . ';'
+
+	','  shift 88
+	';'  shift 89
+
+
+state 46
 	expr : assign_expr .  (14)
 
 	.  reduce 14
 
 
-state 46
+state 47
 	assign_expr : const_expr .  (16)
 
 	.  reduce 16
 
 
-state 47
-	const_expr : ternary_expr .  (17)
-
-	.  reduce 17
-
-
 state 48
+	postfix_expr : basic_expr .  (52)
+
+	.  reduce 52
+
+
+state 49
+	shift_expr : shift_expr . LSHIFT add_sub_expr
+	shift_expr : shift_expr . RSHIFT add_sub_expr
+	greater_less_expr : shift_expr .  (37)
+
+	LSHIFT  shift 90
+	RSHIFT  shift 91
+	.  reduce 37
+
+
+state 50
+	stmt_list : stmt .  (92)
+
+	.  reduce 92
+
+
+state 51
+	stmt : conditional_stmt .  (79)
+
+	.  reduce 79
+
+
+state 52
+	stmt : expr_stmt .  (77)
+
+	.  reduce 77
+
+
+state 53
 	unary_expr : unary_op . unary_expr
 
 	'!'  shift 25
@@ -635,67 +669,13 @@ state 48
 	DEC  shift 37
 	INTVAL  shift 38
 	CHARVAL  shift 39
-	ID  shift 90
+	ID  shift 92
 
-	unary_op  goto 48
-	unary_expr  goto 91
-	val  goto 61
-	postfix_expr  goto 63
-	basic_expr  goto 64
-
-
-state 49
-	bit_or_expr : bit_or_expr . '|' bit_xor_expr
-	and_expr : bit_or_expr .  (23)
-
-	'|'  shift 92
-	.  reduce 23
-
-
-state 50
-	bit_and_expr : equal_expr .  (29)
-	equal_expr : equal_expr . EQ greater_less_expr
-	equal_expr : equal_expr . NE greater_less_expr
-
-	EQ  shift 93
-	NE  shift 94
-	.  reduce 29
-
-
-state 51
-	shift_expr : shift_expr . RSHIFT add_sub_expr
-	shift_expr : shift_expr . LSHIFT add_sub_expr
-	greater_less_expr : shift_expr .  (37)
-
-	LSHIFT  shift 95
-	RSHIFT  shift 96
-	.  reduce 37
-
-
-state 52
-	mul_div_mod_expr : mul_div_mod_expr . '*' unary_expr
-	mul_div_mod_expr : mul_div_mod_expr . '%' unary_expr
-	mul_div_mod_expr : mul_div_mod_expr . '/' unary_expr
-	add_sub_expr : mul_div_mod_expr .  (43)
-
-	'%'  shift 97
-	'*'  shift 98
-	'/'  shift 99
-	.  reduce 43
-
-
-state 53
-	equal_expr : greater_less_expr .  (32)
-	greater_less_expr : greater_less_expr . LE shift_expr
-	greater_less_expr : greater_less_expr . LT shift_expr
-	greater_less_expr : greater_less_expr . GE shift_expr
-	greater_less_expr : greater_less_expr . GT shift_expr
-
-	LE  shift 100
-	GE  shift 101
-	LT  shift 102
-	GT  shift 103
-	.  reduce 32
+	basic_expr  goto 48
+	unary_op  goto 53
+	unary_expr  goto 93
+	val  goto 58
+	postfix_expr  goto 59
 
 
 state 54
@@ -703,85 +683,105 @@ state 54
 	add_sub_expr : add_sub_expr . '-' mul_div_mod_expr
 	add_sub_expr : add_sub_expr . '+' mul_div_mod_expr
 
-	'+'  shift 104
-	'-'  shift 105
+	'+'  shift 94
+	'-'  shift 95
 	.  reduce 40
 
 
 state 55
-	bit_xor_expr : bit_xor_expr . '^' bit_and_expr
-	bit_or_expr : bit_xor_expr .  (25)
-
-	'^'  shift 106
-	.  reduce 25
-
-
-state 56
-	and_expr : and_expr . AND bit_or_expr
-	or_expr : and_expr .  (21)
-
-	AND  shift 107
-	.  reduce 21
-
-
-state 57
-	bit_xor_expr : bit_and_expr .  (27)
-	bit_and_expr : bit_and_expr . '&' equal_expr
-
-	'&'  shift 108
-	.  reduce 27
-
-
-state 58
-	mul_div_mod_expr : unary_expr .  (47)
-
-	.  reduce 47
-
-
-state 59
-	stmt : expr_stmt .  (77)
-
-	.  reduce 77
-
-
-state 60
-	stmt : conditional_stmt .  (79)
-
-	.  reduce 79
-
-
-state 61
-	basic_expr : val .  (54)
-
-	.  reduce 54
-
-
-state 62
 	stmt : loop_stmt .  (76)
 
 	.  reduce 76
 
 
-state 63
-	postfix_expr : postfix_expr . DEC
+state 56
+	mul_div_mod_expr : mul_div_mod_expr . '*' unary_expr
+	mul_div_mod_expr : mul_div_mod_expr . '%' unary_expr
+	mul_div_mod_expr : mul_div_mod_expr . '/' unary_expr
+	add_sub_expr : mul_div_mod_expr .  (43)
+
+	'%'  shift 96
+	'*'  shift 97
+	'/'  shift 98
+	.  reduce 43
+
+
+state 57
+	mul_div_mod_expr : unary_expr .  (47)
+
+	.  reduce 47
+
+
+state 58
+	basic_expr : val .  (54)
+
+	.  reduce 54
+
+
+state 59
 	postfix_expr : postfix_expr . INC
+	postfix_expr : postfix_expr . DEC
 	unary_expr : postfix_expr .  (49)
 
-	INC  shift 109
-	DEC  shift 110
+	INC  shift 99
+	DEC  shift 100
 	.  reduce 49
 
 
-state 64
-	postfix_expr : basic_expr .  (52)
+state 60
+	bit_and_expr : bit_and_expr . '&' equal_expr
+	bit_xor_expr : bit_and_expr .  (27)
 
-	.  reduce 52
+	'&'  shift 101
+	.  reduce 27
+
+
+state 61
+	equal_expr : equal_expr . EQ greater_less_expr
+	equal_expr : equal_expr . NE greater_less_expr
+	bit_and_expr : equal_expr .  (29)
+
+	EQ  shift 102
+	NE  shift 103
+	.  reduce 29
+
+
+state 62
+	equal_expr : greater_less_expr .  (32)
+	greater_less_expr : greater_less_expr . LE shift_expr
+	greater_less_expr : greater_less_expr . LT shift_expr
+	greater_less_expr : greater_less_expr . GT shift_expr
+	greater_less_expr : greater_less_expr . GE shift_expr
+
+	LE  shift 104
+	GE  shift 105
+	LT  shift 106
+	GT  shift 107
+	.  reduce 32
+
+
+state 63
+	bit_or_expr : bit_or_expr . '|' bit_xor_expr
+	and_expr : bit_or_expr .  (23)
+
+	'|'  shift 108
+	.  reduce 23
+
+
+state 64
+	or_expr : and_expr .  (21)
+	and_expr : and_expr . AND bit_or_expr
+
+	AND  shift 109
+	.  reduce 21
 
 
 state 65
-	stmt_list : stmt .  (92)
+	bit_or_expr : bit_xor_expr .  (25)
+	bit_xor_expr : bit_xor_expr . '^' bit_and_expr
 
-	.  reduce 92
+	'^'  shift 110
+	.  reduce 25
 
 
 state 66
@@ -805,30 +805,30 @@ state 66
 	CHARVAL  shift 39
 	ID  shift 40
 
-	or_expr  goto 42
-	expr  goto 43
+	ternary_expr  goto 42
+	or_expr  goto 43
 	compound_stmt  goto 44
-	assign_expr  goto 45
-	const_expr  goto 46
-	ternary_expr  goto 47
-	unary_op  goto 48
-	bit_or_expr  goto 49
-	equal_expr  goto 50
-	shift_expr  goto 51
-	mul_div_mod_expr  goto 52
-	greater_less_expr  goto 53
-	add_sub_expr  goto 54
-	bit_xor_expr  goto 55
-	and_expr  goto 56
-	bit_and_expr  goto 57
-	unary_expr  goto 58
-	expr_stmt  goto 59
-	conditional_stmt  goto 60
-	val  goto 61
-	loop_stmt  goto 62
-	postfix_expr  goto 63
-	basic_expr  goto 64
+	expr  goto 45
+	assign_expr  goto 46
+	const_expr  goto 47
+	basic_expr  goto 48
+	shift_expr  goto 49
 	stmt  goto 112
+	conditional_stmt  goto 51
+	expr_stmt  goto 52
+	unary_op  goto 53
+	add_sub_expr  goto 54
+	loop_stmt  goto 55
+	mul_div_mod_expr  goto 56
+	unary_expr  goto 57
+	val  goto 58
+	postfix_expr  goto 59
+	bit_and_expr  goto 60
+	equal_expr  goto 61
+	greater_less_expr  goto 62
+	bit_or_expr  goto 63
+	and_expr  goto 64
+	bit_xor_expr  goto 65
 
 
 state 67
@@ -853,30 +853,30 @@ state 68
 	CHARVAL  shift 39
 	ID  shift 40
 
-	or_expr  goto 42
+	ternary_expr  goto 42
+	or_expr  goto 43
 	expr  goto 114
-	assign_expr  goto 45
-	const_expr  goto 46
-	ternary_expr  goto 47
-	unary_op  goto 48
-	bit_or_expr  goto 49
-	equal_expr  goto 50
-	shift_expr  goto 51
-	mul_div_mod_expr  goto 52
-	greater_less_expr  goto 53
+	assign_expr  goto 46
+	const_expr  goto 47
+	basic_expr  goto 48
+	shift_expr  goto 49
+	unary_op  goto 53
 	add_sub_expr  goto 54
-	bit_xor_expr  goto 55
-	and_expr  goto 56
-	bit_and_expr  goto 57
-	unary_expr  goto 58
-	val  goto 61
-	postfix_expr  goto 63
-	basic_expr  goto 64
+	mul_div_mod_expr  goto 56
+	unary_expr  goto 57
+	val  goto 58
+	postfix_expr  goto 59
+	bit_and_expr  goto 60
+	equal_expr  goto 61
+	greater_less_expr  goto 62
+	bit_or_expr  goto 63
+	and_expr  goto 64
+	bit_xor_expr  goto 65
 
 
 state 69
-	loop_stmt : FOR '(' . expr_stmt expr_stmt ')' stmt
 	loop_stmt : FOR '(' . expr_stmt expr_stmt expr ')' stmt
+	loop_stmt : FOR '(' . expr_stmt expr_stmt ')' stmt
 
 	'!'  shift 25
 	'('  shift 26
@@ -890,31 +890,31 @@ state 69
 	CHARVAL  shift 39
 	ID  shift 40
 
-	or_expr  goto 42
-	expr  goto 43
-	assign_expr  goto 45
-	const_expr  goto 46
-	ternary_expr  goto 47
-	unary_op  goto 48
-	bit_or_expr  goto 49
-	equal_expr  goto 50
-	shift_expr  goto 51
-	mul_div_mod_expr  goto 52
-	greater_less_expr  goto 53
-	add_sub_expr  goto 54
-	bit_xor_expr  goto 55
-	and_expr  goto 56
-	bit_and_expr  goto 57
-	unary_expr  goto 58
+	ternary_expr  goto 42
+	or_expr  goto 43
+	expr  goto 45
+	assign_expr  goto 46
+	const_expr  goto 47
+	basic_expr  goto 48
+	shift_expr  goto 49
 	expr_stmt  goto 115
-	val  goto 61
-	postfix_expr  goto 63
-	basic_expr  goto 64
+	unary_op  goto 53
+	add_sub_expr  goto 54
+	mul_div_mod_expr  goto 56
+	unary_expr  goto 57
+	val  goto 58
+	postfix_expr  goto 59
+	bit_and_expr  goto 60
+	equal_expr  goto 61
+	greater_less_expr  goto 62
+	bit_or_expr  goto 63
+	and_expr  goto 64
+	bit_xor_expr  goto 65
 
 
 state 70
-	conditional_stmt : IF '(' . expr ')' stmt ELSE stmt
 	conditional_stmt : IF '(' . expr ')' stmt
+	conditional_stmt : IF '(' . expr ')' stmt ELSE stmt
 
 	'!'  shift 25
 	'('  shift 26
@@ -927,25 +927,25 @@ state 70
 	CHARVAL  shift 39
 	ID  shift 40
 
-	or_expr  goto 42
+	ternary_expr  goto 42
+	or_expr  goto 43
 	expr  goto 116
-	assign_expr  goto 45
-	const_expr  goto 46
-	ternary_expr  goto 47
-	unary_op  goto 48
-	bit_or_expr  goto 49
-	equal_expr  goto 50
-	shift_expr  goto 51
-	mul_div_mod_expr  goto 52
-	greater_less_expr  goto 53
+	assign_expr  goto 46
+	const_expr  goto 47
+	basic_expr  goto 48
+	shift_expr  goto 49
+	unary_op  goto 53
 	add_sub_expr  goto 54
-	bit_xor_expr  goto 55
-	and_expr  goto 56
-	bit_and_expr  goto 57
-	unary_expr  goto 58
-	val  goto 61
-	postfix_expr  goto 63
-	basic_expr  goto 64
+	mul_div_mod_expr  goto 56
+	unary_expr  goto 57
+	val  goto 58
+	postfix_expr  goto 59
+	bit_and_expr  goto 60
+	equal_expr  goto 61
+	greater_less_expr  goto 62
+	bit_or_expr  goto 63
+	and_expr  goto 64
+	bit_xor_expr  goto 65
 
 
 state 71
@@ -1034,24 +1034,24 @@ state 83
 	CHARVAL  shift 39
 	ID  shift 40
 
-	or_expr  goto 42
+	ternary_expr  goto 42
+	or_expr  goto 43
 	assign_expr  goto 117
-	const_expr  goto 46
-	ternary_expr  goto 47
-	unary_op  goto 48
-	bit_or_expr  goto 49
-	equal_expr  goto 50
-	shift_expr  goto 51
-	mul_div_mod_expr  goto 52
-	greater_less_expr  goto 53
+	const_expr  goto 47
+	basic_expr  goto 48
+	shift_expr  goto 49
+	unary_op  goto 53
 	add_sub_expr  goto 54
-	bit_xor_expr  goto 55
-	and_expr  goto 56
-	bit_and_expr  goto 57
-	unary_expr  goto 58
-	val  goto 61
-	postfix_expr  goto 63
-	basic_expr  goto 64
+	mul_div_mod_expr  goto 56
+	unary_expr  goto 57
+	val  goto 58
+	postfix_expr  goto 59
+	bit_and_expr  goto 60
+	equal_expr  goto 61
+	greater_less_expr  goto 62
+	bit_or_expr  goto 63
+	and_expr  goto 64
+	bit_xor_expr  goto 65
 
 
 state 84
@@ -1061,8 +1061,8 @@ state 84
 
 
 state 85
-	compound_stmt : '{' decl_list stmt_list . '}'
 	stmt_list : stmt_list . stmt
+	compound_stmt : '{' decl_list stmt_list . '}'
 
 	'!'  shift 25
 	'('  shift 26
@@ -1081,30 +1081,30 @@ state 85
 	CHARVAL  shift 39
 	ID  shift 40
 
-	or_expr  goto 42
-	expr  goto 43
+	ternary_expr  goto 42
+	or_expr  goto 43
 	compound_stmt  goto 44
-	assign_expr  goto 45
-	const_expr  goto 46
-	ternary_expr  goto 47
-	unary_op  goto 48
-	bit_or_expr  goto 49
-	equal_expr  goto 50
-	shift_expr  goto 51
-	mul_div_mod_expr  goto 52
-	greater_less_expr  goto 53
-	add_sub_expr  goto 54
-	bit_xor_expr  goto 55
-	and_expr  goto 56
-	bit_and_expr  goto 57
-	unary_expr  goto 58
-	expr_stmt  goto 59
-	conditional_stmt  goto 60
-	val  goto 61
-	loop_stmt  goto 62
-	postfix_expr  goto 63
-	basic_expr  goto 64
+	expr  goto 45
+	assign_expr  goto 46
+	const_expr  goto 47
+	basic_expr  goto 48
+	shift_expr  goto 49
 	stmt  goto 112
+	conditional_stmt  goto 51
+	expr_stmt  goto 52
+	unary_op  goto 53
+	add_sub_expr  goto 54
+	loop_stmt  goto 55
+	mul_div_mod_expr  goto 56
+	unary_expr  goto 57
+	val  goto 58
+	postfix_expr  goto 59
+	bit_and_expr  goto 60
+	equal_expr  goto 61
+	greater_less_expr  goto 62
+	bit_or_expr  goto 63
+	and_expr  goto 64
+	bit_xor_expr  goto 65
 
 
 state 86
@@ -1119,24 +1119,24 @@ state 86
 	DEC  shift 37
 	INTVAL  shift 38
 	CHARVAL  shift 39
-	ID  shift 90
+	ID  shift 92
 
-	or_expr  goto 42
 	ternary_expr  goto 119
-	unary_op  goto 48
-	bit_or_expr  goto 49
-	equal_expr  goto 50
-	shift_expr  goto 51
-	mul_div_mod_expr  goto 52
-	greater_less_expr  goto 53
+	or_expr  goto 43
+	basic_expr  goto 48
+	shift_expr  goto 49
+	unary_op  goto 53
 	add_sub_expr  goto 54
-	bit_xor_expr  goto 55
-	and_expr  goto 56
-	bit_and_expr  goto 57
-	unary_expr  goto 58
-	val  goto 61
-	postfix_expr  goto 63
-	basic_expr  goto 64
+	mul_div_mod_expr  goto 56
+	unary_expr  goto 57
+	val  goto 58
+	postfix_expr  goto 59
+	bit_and_expr  goto 60
+	equal_expr  goto 61
+	greater_less_expr  goto 62
+	bit_or_expr  goto 63
+	and_expr  goto 64
+	bit_xor_expr  goto 65
 
 
 state 87
@@ -1151,22 +1151,22 @@ state 87
 	DEC  shift 37
 	INTVAL  shift 38
 	CHARVAL  shift 39
-	ID  shift 90
+	ID  shift 92
 
-	unary_op  goto 48
-	bit_or_expr  goto 49
-	equal_expr  goto 50
-	shift_expr  goto 51
-	mul_div_mod_expr  goto 52
-	greater_less_expr  goto 53
+	basic_expr  goto 48
+	shift_expr  goto 49
+	unary_op  goto 53
 	add_sub_expr  goto 54
-	bit_xor_expr  goto 55
+	mul_div_mod_expr  goto 56
+	unary_expr  goto 57
+	val  goto 58
+	postfix_expr  goto 59
+	bit_and_expr  goto 60
+	equal_expr  goto 61
+	greater_less_expr  goto 62
+	bit_or_expr  goto 63
 	and_expr  goto 120
-	bit_and_expr  goto 57
-	unary_expr  goto 58
-	val  goto 61
-	postfix_expr  goto 63
-	basic_expr  goto 64
+	bit_xor_expr  goto 65
 
 
 state 88
@@ -1183,24 +1183,24 @@ state 88
 	CHARVAL  shift 39
 	ID  shift 40
 
-	or_expr  goto 42
+	ternary_expr  goto 42
+	or_expr  goto 43
 	assign_expr  goto 121
-	const_expr  goto 46
-	ternary_expr  goto 47
-	unary_op  goto 48
-	bit_or_expr  goto 49
-	equal_expr  goto 50
-	shift_expr  goto 51
-	mul_div_mod_expr  goto 52
-	greater_less_expr  goto 53
+	const_expr  goto 47
+	basic_expr  goto 48
+	shift_expr  goto 49
+	unary_op  goto 53
 	add_sub_expr  goto 54
-	bit_xor_expr  goto 55
-	and_expr  goto 56
-	bit_and_expr  goto 57
-	unary_expr  goto 58
-	val  goto 61
-	postfix_expr  goto 63
-	basic_expr  goto 64
+	mul_div_mod_expr  goto 56
+	unary_expr  goto 57
+	val  goto 58
+	postfix_expr  goto 59
+	bit_and_expr  goto 60
+	equal_expr  goto 61
+	greater_less_expr  goto 62
+	bit_or_expr  goto 63
+	and_expr  goto 64
+	bit_xor_expr  goto 65
 
 
 state 89
@@ -1210,96 +1210,6 @@ state 89
 
 
 state 90
-	basic_expr : ID .  (53)
-
-	.  reduce 53
-
-
-state 91
-	unary_expr : unary_op unary_expr .  (48)
-
-	.  reduce 48
-
-
-state 92
-	bit_or_expr : bit_or_expr '|' . bit_xor_expr
-
-	'!'  shift 25
-	'('  shift 26
-	'+'  shift 27
-	'-'  shift 28
-	'~'  shift 31
-	INC  shift 36
-	DEC  shift 37
-	INTVAL  shift 38
-	CHARVAL  shift 39
-	ID  shift 90
-
-	unary_op  goto 48
-	equal_expr  goto 50
-	shift_expr  goto 51
-	mul_div_mod_expr  goto 52
-	greater_less_expr  goto 53
-	add_sub_expr  goto 54
-	bit_xor_expr  goto 122
-	bit_and_expr  goto 57
-	unary_expr  goto 58
-	val  goto 61
-	postfix_expr  goto 63
-	basic_expr  goto 64
-
-
-state 93
-	equal_expr : equal_expr EQ . greater_less_expr
-
-	'!'  shift 25
-	'('  shift 26
-	'+'  shift 27
-	'-'  shift 28
-	'~'  shift 31
-	INC  shift 36
-	DEC  shift 37
-	INTVAL  shift 38
-	CHARVAL  shift 39
-	ID  shift 90
-
-	unary_op  goto 48
-	shift_expr  goto 51
-	mul_div_mod_expr  goto 52
-	greater_less_expr  goto 123
-	add_sub_expr  goto 54
-	unary_expr  goto 58
-	val  goto 61
-	postfix_expr  goto 63
-	basic_expr  goto 64
-
-
-state 94
-	equal_expr : equal_expr NE . greater_less_expr
-
-	'!'  shift 25
-	'('  shift 26
-	'+'  shift 27
-	'-'  shift 28
-	'~'  shift 31
-	INC  shift 36
-	DEC  shift 37
-	INTVAL  shift 38
-	CHARVAL  shift 39
-	ID  shift 90
-
-	unary_op  goto 48
-	shift_expr  goto 51
-	mul_div_mod_expr  goto 52
-	greater_less_expr  goto 124
-	add_sub_expr  goto 54
-	unary_expr  goto 58
-	val  goto 61
-	postfix_expr  goto 63
-	basic_expr  goto 64
-
-
-state 95
 	shift_expr : shift_expr LSHIFT . add_sub_expr
 
 	'!'  shift 25
@@ -1311,18 +1221,18 @@ state 95
 	DEC  shift 37
 	INTVAL  shift 38
 	CHARVAL  shift 39
-	ID  shift 90
+	ID  shift 92
 
-	unary_op  goto 48
-	mul_div_mod_expr  goto 52
-	add_sub_expr  goto 125
-	unary_expr  goto 58
-	val  goto 61
-	postfix_expr  goto 63
-	basic_expr  goto 64
+	basic_expr  goto 48
+	unary_op  goto 53
+	add_sub_expr  goto 122
+	mul_div_mod_expr  goto 56
+	unary_expr  goto 57
+	val  goto 58
+	postfix_expr  goto 59
 
 
-state 96
+state 91
 	shift_expr : shift_expr RSHIFT . add_sub_expr
 
 	'!'  shift 25
@@ -1334,177 +1244,30 @@ state 96
 	DEC  shift 37
 	INTVAL  shift 38
 	CHARVAL  shift 39
-	ID  shift 90
+	ID  shift 92
 
-	unary_op  goto 48
-	mul_div_mod_expr  goto 52
-	add_sub_expr  goto 126
-	unary_expr  goto 58
-	val  goto 61
-	postfix_expr  goto 63
-	basic_expr  goto 64
-
-
-state 97
-	mul_div_mod_expr : mul_div_mod_expr '%' . unary_expr
-
-	'!'  shift 25
-	'('  shift 26
-	'+'  shift 27
-	'-'  shift 28
-	'~'  shift 31
-	INC  shift 36
-	DEC  shift 37
-	INTVAL  shift 38
-	CHARVAL  shift 39
-	ID  shift 90
-
-	unary_op  goto 48
-	unary_expr  goto 127
-	val  goto 61
-	postfix_expr  goto 63
-	basic_expr  goto 64
+	basic_expr  goto 48
+	unary_op  goto 53
+	add_sub_expr  goto 123
+	mul_div_mod_expr  goto 56
+	unary_expr  goto 57
+	val  goto 58
+	postfix_expr  goto 59
 
 
-state 98
-	mul_div_mod_expr : mul_div_mod_expr '*' . unary_expr
+state 92
+	basic_expr : ID .  (53)
 
-	'!'  shift 25
-	'('  shift 26
-	'+'  shift 27
-	'-'  shift 28
-	'~'  shift 31
-	INC  shift 36
-	DEC  shift 37
-	INTVAL  shift 38
-	CHARVAL  shift 39
-	ID  shift 90
-
-	unary_op  goto 48
-	unary_expr  goto 128
-	val  goto 61
-	postfix_expr  goto 63
-	basic_expr  goto 64
+	.  reduce 53
 
 
-state 99
-	mul_div_mod_expr : mul_div_mod_expr '/' . unary_expr
+state 93
+	unary_expr : unary_op unary_expr .  (48)
 
-	'!'  shift 25
-	'('  shift 26
-	'+'  shift 27
-	'-'  shift 28
-	'~'  shift 31
-	INC  shift 36
-	DEC  shift 37
-	INTVAL  shift 38
-	CHARVAL  shift 39
-	ID  shift 90
-
-	unary_op  goto 48
-	unary_expr  goto 129
-	val  goto 61
-	postfix_expr  goto 63
-	basic_expr  goto 64
+	.  reduce 48
 
 
-state 100
-	greater_less_expr : greater_less_expr LE . shift_expr
-
-	'!'  shift 25
-	'('  shift 26
-	'+'  shift 27
-	'-'  shift 28
-	'~'  shift 31
-	INC  shift 36
-	DEC  shift 37
-	INTVAL  shift 38
-	CHARVAL  shift 39
-	ID  shift 90
-
-	unary_op  goto 48
-	shift_expr  goto 130
-	mul_div_mod_expr  goto 52
-	add_sub_expr  goto 54
-	unary_expr  goto 58
-	val  goto 61
-	postfix_expr  goto 63
-	basic_expr  goto 64
-
-
-state 101
-	greater_less_expr : greater_less_expr GE . shift_expr
-
-	'!'  shift 25
-	'('  shift 26
-	'+'  shift 27
-	'-'  shift 28
-	'~'  shift 31
-	INC  shift 36
-	DEC  shift 37
-	INTVAL  shift 38
-	CHARVAL  shift 39
-	ID  shift 90
-
-	unary_op  goto 48
-	shift_expr  goto 131
-	mul_div_mod_expr  goto 52
-	add_sub_expr  goto 54
-	unary_expr  goto 58
-	val  goto 61
-	postfix_expr  goto 63
-	basic_expr  goto 64
-
-
-state 102
-	greater_less_expr : greater_less_expr LT . shift_expr
-
-	'!'  shift 25
-	'('  shift 26
-	'+'  shift 27
-	'-'  shift 28
-	'~'  shift 31
-	INC  shift 36
-	DEC  shift 37
-	INTVAL  shift 38
-	CHARVAL  shift 39
-	ID  shift 90
-
-	unary_op  goto 48
-	shift_expr  goto 132
-	mul_div_mod_expr  goto 52
-	add_sub_expr  goto 54
-	unary_expr  goto 58
-	val  goto 61
-	postfix_expr  goto 63
-	basic_expr  goto 64
-
-
-state 103
-	greater_less_expr : greater_less_expr GT . shift_expr
-
-	'!'  shift 25
-	'('  shift 26
-	'+'  shift 27
-	'-'  shift 28
-	'~'  shift 31
-	INC  shift 36
-	DEC  shift 37
-	INTVAL  shift 38
-	CHARVAL  shift 39
-	ID  shift 90
-
-	unary_op  goto 48
-	shift_expr  goto 133
-	mul_div_mod_expr  goto 52
-	add_sub_expr  goto 54
-	unary_expr  goto 58
-	val  goto 61
-	postfix_expr  goto 63
-	basic_expr  goto 64
-
-
-state 104
+state 94
 	add_sub_expr : add_sub_expr '+' . mul_div_mod_expr
 
 	'!'  shift 25
@@ -1516,17 +1279,17 @@ state 104
 	DEC  shift 37
 	INTVAL  shift 38
 	CHARVAL  shift 39
-	ID  shift 90
+	ID  shift 92
 
-	unary_op  goto 48
-	mul_div_mod_expr  goto 134
-	unary_expr  goto 58
-	val  goto 61
-	postfix_expr  goto 63
-	basic_expr  goto 64
+	basic_expr  goto 48
+	unary_op  goto 53
+	mul_div_mod_expr  goto 124
+	unary_expr  goto 57
+	val  goto 58
+	postfix_expr  goto 59
 
 
-state 105
+state 95
 	add_sub_expr : add_sub_expr '-' . mul_div_mod_expr
 
 	'!'  shift 25
@@ -1538,45 +1301,18 @@ state 105
 	DEC  shift 37
 	INTVAL  shift 38
 	CHARVAL  shift 39
-	ID  shift 90
+	ID  shift 92
 
-	unary_op  goto 48
-	mul_div_mod_expr  goto 135
-	unary_expr  goto 58
-	val  goto 61
-	postfix_expr  goto 63
-	basic_expr  goto 64
-
-
-state 106
-	bit_xor_expr : bit_xor_expr '^' . bit_and_expr
-
-	'!'  shift 25
-	'('  shift 26
-	'+'  shift 27
-	'-'  shift 28
-	'~'  shift 31
-	INC  shift 36
-	DEC  shift 37
-	INTVAL  shift 38
-	CHARVAL  shift 39
-	ID  shift 90
-
-	unary_op  goto 48
-	equal_expr  goto 50
-	shift_expr  goto 51
-	mul_div_mod_expr  goto 52
-	greater_less_expr  goto 53
-	add_sub_expr  goto 54
-	bit_and_expr  goto 136
-	unary_expr  goto 58
-	val  goto 61
-	postfix_expr  goto 63
-	basic_expr  goto 64
+	basic_expr  goto 48
+	unary_op  goto 53
+	mul_div_mod_expr  goto 125
+	unary_expr  goto 57
+	val  goto 58
+	postfix_expr  goto 59
 
 
-state 107
-	and_expr : and_expr AND . bit_or_expr
+state 96
+	mul_div_mod_expr : mul_div_mod_expr '%' . unary_expr
 
 	'!'  shift 25
 	'('  shift 26
@@ -1587,24 +1323,70 @@ state 107
 	DEC  shift 37
 	INTVAL  shift 38
 	CHARVAL  shift 39
-	ID  shift 90
+	ID  shift 92
 
-	unary_op  goto 48
-	bit_or_expr  goto 137
-	equal_expr  goto 50
-	shift_expr  goto 51
-	mul_div_mod_expr  goto 52
-	greater_less_expr  goto 53
-	add_sub_expr  goto 54
-	bit_xor_expr  goto 55
-	bit_and_expr  goto 57
-	unary_expr  goto 58
-	val  goto 61
-	postfix_expr  goto 63
-	basic_expr  goto 64
+	basic_expr  goto 48
+	unary_op  goto 53
+	unary_expr  goto 126
+	val  goto 58
+	postfix_expr  goto 59
 
 
-state 108
+state 97
+	mul_div_mod_expr : mul_div_mod_expr '*' . unary_expr
+
+	'!'  shift 25
+	'('  shift 26
+	'+'  shift 27
+	'-'  shift 28
+	'~'  shift 31
+	INC  shift 36
+	DEC  shift 37
+	INTVAL  shift 38
+	CHARVAL  shift 39
+	ID  shift 92
+
+	basic_expr  goto 48
+	unary_op  goto 53
+	unary_expr  goto 127
+	val  goto 58
+	postfix_expr  goto 59
+
+
+state 98
+	mul_div_mod_expr : mul_div_mod_expr '/' . unary_expr
+
+	'!'  shift 25
+	'('  shift 26
+	'+'  shift 27
+	'-'  shift 28
+	'~'  shift 31
+	INC  shift 36
+	DEC  shift 37
+	INTVAL  shift 38
+	CHARVAL  shift 39
+	ID  shift 92
+
+	basic_expr  goto 48
+	unary_op  goto 53
+	unary_expr  goto 128
+	val  goto 58
+	postfix_expr  goto 59
+
+
+state 99
+	postfix_expr : postfix_expr INC .  (50)
+
+	.  reduce 50
+
+
+state 100
+	postfix_expr : postfix_expr DEC .  (51)
+
+	.  reduce 51
+
+
+state 101
 	bit_and_expr : bit_and_expr '&' . equal_expr
 
 	'!'  shift 25
@@ -1616,30 +1398,248 @@ state 108
 	DEC  shift 37
 	INTVAL  shift 38
 	CHARVAL  shift 39
-	ID  shift 90
+	ID  shift 92
 
-	unary_op  goto 48
-	equal_expr  goto 138
-	shift_expr  goto 51
-	mul_div_mod_expr  goto 52
-	greater_less_expr  goto 53
+	basic_expr  goto 48
+	shift_expr  goto 49
+	unary_op  goto 53
 	add_sub_expr  goto 54
-	unary_expr  goto 58
-	val  goto 61
-	postfix_expr  goto 63
-	basic_expr  goto 64
+	mul_div_mod_expr  goto 56
+	unary_expr  goto 57
+	val  goto 58
+	postfix_expr  goto 59
+	equal_expr  goto 129
+	greater_less_expr  goto 62
+
+
+state 102
+	equal_expr : equal_expr EQ . greater_less_expr
+
+	'!'  shift 25
+	'('  shift 26
+	'+'  shift 27
+	'-'  shift 28
+	'~'  shift 31
+	INC  shift 36
+	DEC  shift 37
+	INTVAL  shift 38
+	CHARVAL  shift 39
+	ID  shift 92
+
+	basic_expr  goto 48
+	shift_expr  goto 49
+	unary_op  goto 53
+	add_sub_expr  goto 54
+	mul_div_mod_expr  goto 56
+	unary_expr  goto 57
+	val  goto 58
+	postfix_expr  goto 59
+	greater_less_expr  goto 130
+
+
+state 103
+	equal_expr : equal_expr NE . greater_less_expr
+
+	'!'  shift 25
+	'('  shift 26
+	'+'  shift 27
+	'-'  shift 28
+	'~'  shift 31
+	INC  shift 36
+	DEC  shift 37
+	INTVAL  shift 38
+	CHARVAL  shift 39
+	ID  shift 92
+
+	basic_expr  goto 48
+	shift_expr  goto 49
+	unary_op  goto 53
+	add_sub_expr  goto 54
+	mul_div_mod_expr  goto 56
+	unary_expr  goto 57
+	val  goto 58
+	postfix_expr  goto 59
+	greater_less_expr  goto 131
+
+
+state 104
+	greater_less_expr : greater_less_expr LE . shift_expr
+
+	'!'  shift 25
+	'('  shift 26
+	'+'  shift 27
+	'-'  shift 28
+	'~'  shift 31
+	INC  shift 36
+	DEC  shift 37
+	INTVAL  shift 38
+	CHARVAL  shift 39
+	ID  shift 92
+
+	basic_expr  goto 48
+	shift_expr  goto 132
+	unary_op  goto 53
+	add_sub_expr  goto 54
+	mul_div_mod_expr  goto 56
+	unary_expr  goto 57
+	val  goto 58
+	postfix_expr  goto 59
+
+
+state 105
+	greater_less_expr : greater_less_expr GE . shift_expr
+
+	'!'  shift 25
+	'('  shift 26
+	'+'  shift 27
+	'-'  shift 28
+	'~'  shift 31
+	INC  shift 36
+	DEC  shift 37
+	INTVAL  shift 38
+	CHARVAL  shift 39
+	ID  shift 92
+
+	basic_expr  goto 48
+	shift_expr  goto 133
+	unary_op  goto 53
+	add_sub_expr  goto 54
+	mul_div_mod_expr  goto 56
+	unary_expr  goto 57
+	val  goto 58
+	postfix_expr  goto 59
+
+
+state 106
+	greater_less_expr : greater_less_expr LT . shift_expr
+
+	'!'  shift 25
+	'('  shift 26
+	'+'  shift 27
+	'-'  shift 28
+	'~'  shift 31
+	INC  shift 36
+	DEC  shift 37
+	INTVAL  shift 38
+	CHARVAL  shift 39
+	ID  shift 92
+
+	basic_expr  goto 48
+	shift_expr  goto 134
+	unary_op  goto 53
+	add_sub_expr  goto 54
+	mul_div_mod_expr  goto 56
+	unary_expr  goto 57
+	val  goto 58
+	postfix_expr  goto 59
+
+
+state 107
+	greater_less_expr : greater_less_expr GT . shift_expr
+
+	'!'  shift 25
+	'('  shift 26
+	'+'  shift 27
+	'-'  shift 28
+	'~'  shift 31
+	INC  shift 36
+	DEC  shift 37
+	INTVAL  shift 38
+	CHARVAL  shift 39
+	ID  shift 92
+
+	basic_expr  goto 48
+	shift_expr  goto 135
+	unary_op  goto 53
+	add_sub_expr  goto 54
+	mul_div_mod_expr  goto 56
+	unary_expr  goto 57
+	val  goto 58
+	postfix_expr  goto 59
+
+
+state 108
+	bit_or_expr : bit_or_expr '|' . bit_xor_expr
+
+	'!'  shift 25
+	'('  shift 26
+	'+'  shift 27
+	'-'  shift 28
+	'~'  shift 31
+	INC  shift 36
+	DEC  shift 37
+	INTVAL  shift 38
+	CHARVAL  shift 39
+	ID  shift 92
+
+	basic_expr  goto 48
+	shift_expr  goto 49
+	unary_op  goto 53
+	add_sub_expr  goto 54
+	mul_div_mod_expr  goto 56
+	unary_expr  goto 57
+	val  goto 58
+	postfix_expr  goto 59
+	bit_and_expr  goto 60
+	equal_expr  goto 61
+	greater_less_expr  goto 62
+	bit_xor_expr  goto 136
 
 
 state 109
-	postfix_expr : postfix_expr INC .  (50)
+	and_expr : and_expr AND . bit_or_expr
 
-	.  reduce 50
+	'!'  shift 25
+	'('  shift 26
+	'+'  shift 27
+	'-'  shift 28
+	'~'  shift 31
+	INC  shift 36
+	DEC  shift 37
+	INTVAL  shift 38
+	CHARVAL  shift 39
+	ID  shift 92
+
+	basic_expr  goto 48
+	shift_expr  goto 49
+	unary_op  goto 53
+	add_sub_expr  goto 54
+	mul_div_mod_expr  goto 56
+	unary_expr  goto 57
+	val  goto 58
+	postfix_expr  goto 59
+	bit_and_expr  goto 60
+	equal_expr  goto 61
+	greater_less_expr  goto 62
+	bit_or_expr  goto 137
+	bit_xor_expr  goto 65
 
 
 state 110
-	postfix_expr : postfix_expr DEC .  (51)
+	bit_xor_expr : bit_xor_expr '^' . bit_and_expr
 
-	.  reduce 51
+	'!'  shift 25
+	'('  shift 26
+	'+'  shift 27
+	'-'  shift 28
+	'~'  shift 31
+	INC  shift 36
+	DEC  shift 37
+	INTVAL  shift 38
+	CHARVAL  shift 39
+	ID  shift 92
+
+	basic_expr  goto 48
+	shift_expr  goto 49
+	unary_op  goto 53
+	add_sub_expr  goto 54
+	mul_div_mod_expr  goto 56
+	unary_expr  goto 57
+	val  goto 58
+	postfix_expr  goto 59
+	bit_and_expr  goto 138
+	equal_expr  goto 61
+	greater_less_expr  goto 62
 
 
 state 111
@@ -1669,8 +1669,8 @@ state 114
 
 
 state 115
-	loop_stmt : FOR '(' expr_stmt . expr_stmt ')' stmt
 	loop_stmt : FOR '(' expr_stmt . expr_stmt expr ')' stmt
+	loop_stmt : FOR '(' expr_stmt . expr_stmt ')' stmt
 
 	'!'  shift 25
 	'('  shift 26
@@ -1684,32 +1684,32 @@ state 115
 	CHARVAL  shift 39
 	ID  shift 40
 
-	or_expr  goto 42
-	expr  goto 43
-	assign_expr  goto 45
-	const_expr  goto 46
-	ternary_expr  goto 47
-	unary_op  goto 48
-	bit_or_expr  goto 49
-	equal_expr  goto 50
-	shift_expr  goto 51
-	mul_div_mod_expr  goto 52
-	greater_less_expr  goto 53
-	add_sub_expr  goto 54
-	bit_xor_expr  goto 55
-	and_expr  goto 56
-	bit_and_expr  goto 57
-	unary_expr  goto 58
+	ternary_expr  goto 42
+	or_expr  goto 43
+	expr  goto 45
+	assign_expr  goto 46
+	const_expr  goto 47
+	basic_expr  goto 48
+	shift_expr  goto 49
 	expr_stmt  goto 140
-	val  goto 61
-	postfix_expr  goto 63
-	basic_expr  goto 64
+	unary_op  goto 53
+	add_sub_expr  goto 54
+	mul_div_mod_expr  goto 56
+	unary_expr  goto 57
+	val  goto 58
+	postfix_expr  goto 59
+	bit_and_expr  goto 60
+	equal_expr  goto 61
+	greater_less_expr  goto 62
+	bit_or_expr  goto 63
+	and_expr  goto 64
+	bit_xor_expr  goto 65
 
 
 state 116
 	expr : expr . ',' assign_expr
-	conditional_stmt : IF '(' expr . ')' stmt ELSE stmt
 	conditional_stmt : IF '(' expr . ')' stmt
+	conditional_stmt : IF '(' expr . ')' stmt ELSE stmt
 
 	')'  shift 141
 	','  shift 88
@@ -1737,7 +1737,7 @@ state 120
 	or_expr : or_expr OR and_expr .  (20)
 	and_expr : and_expr . AND bit_or_expr
 
-	AND  shift 107
+	AND  shift 109
 	.  reduce 20
 
 
@@ -1748,167 +1748,167 @@ state 121
 
 
 state 122
-	bit_or_expr : bit_or_expr '|' bit_xor_expr .  (24)
-	bit_xor_expr : bit_xor_expr . '^' bit_and_expr
-
-	'^'  shift 106
-	.  reduce 24
-
-
-state 123
-	greater_less_expr : greater_less_expr . LE shift_expr
-	equal_expr : equal_expr EQ greater_less_expr .  (30)
-	greater_less_expr : greater_less_expr . LT shift_expr
-	greater_less_expr : greater_less_expr . GE shift_expr
-	greater_less_expr : greater_less_expr . GT shift_expr
-
-	LE  shift 100
-	GE  shift 101
-	LT  shift 102
-	GT  shift 103
-	.  reduce 30
-
-
-state 124
-	greater_less_expr : greater_less_expr . LE shift_expr
-	equal_expr : equal_expr NE greater_less_expr .  (31)
-	greater_less_expr : greater_less_expr . LT shift_expr
-	greater_less_expr : greater_less_expr . GE shift_expr
-	greater_less_expr : greater_less_expr . GT shift_expr
-
-	LE  shift 100
-	GE  shift 101
-	LT  shift 102
-	GT  shift 103
-	.  reduce 31
-
-
-state 125
 	shift_expr : shift_expr LSHIFT add_sub_expr .  (38)
 	add_sub_expr : add_sub_expr . '-' mul_div_mod_expr
 	add_sub_expr : add_sub_expr . '+' mul_div_mod_expr
 
-	'+'  shift 104
-	'-'  shift 105
+	'+'  shift 94
+	'-'  shift 95
 	.  reduce 38
 
 
-state 126
-	shift_expr : shift_expr RSHIFT add_sub_expr .  (39)
+state 123
 	add_sub_expr : add_sub_expr . '-' mul_div_mod_expr
+	shift_expr : shift_expr RSHIFT add_sub_expr .  (39)
 	add_sub_expr : add_sub_expr . '+' mul_div_mod_expr
 
-	'+'  shift 104
-	'-'  shift 105
+	'+'  shift 94
+	'-'  shift 95
 	.  reduce 39
 
 
-state 127
+state 124
+	mul_div_mod_expr : mul_div_mod_expr . '*' unary_expr
+	add_sub_expr : add_sub_expr '+' mul_div_mod_expr .  (41)
+	mul_div_mod_expr : mul_div_mod_expr . '%' unary_expr
+	mul_div_mod_expr : mul_div_mod_expr . '/' unary_expr
+
+	'%'  shift 96
+	'*'  shift 97
+	'/'  shift 98
+	.  reduce 41
+
+
+state 125
+	mul_div_mod_expr : mul_div_mod_expr . '*' unary_expr
+	add_sub_expr : add_sub_expr '-' mul_div_mod_expr .  (42)
+	mul_div_mod_expr : mul_div_mod_expr . '%' unary_expr
+	mul_div_mod_expr : mul_div_mod_expr . '/' unary_expr
+
+	'%'  shift 96
+	'*'  shift 97
+	'/'  shift 98
+	.  reduce 42
+
+
+state 126
 	mul_div_mod_expr : mul_div_mod_expr '%' unary_expr .  (46)
 
 	.  reduce 46
 
 
-state 128
+state 127
 	mul_div_mod_expr : mul_div_mod_expr '*' unary_expr .  (44)
 
 	.  reduce 44
 
 
-state 129
+state 128
 	mul_div_mod_expr : mul_div_mod_expr '/' unary_expr .  (45)
 
 	.  reduce 45
 
 
-state 130
-	greater_less_expr : greater_less_expr LE shift_expr .  (33)
-	shift_expr : shift_expr . RSHIFT add_sub_expr
-	shift_expr : shift_expr . LSHIFT add_sub_expr
-
-	LSHIFT  shift 95
-	RSHIFT  shift 96
-	.  reduce 33
-
-
-state 131
-	shift_expr : shift_expr . RSHIFT add_sub_expr
-	shift_expr : shift_expr . LSHIFT add_sub_expr
-	greater_less_expr : greater_less_expr GE shift_expr .  (34)
-
-	LSHIFT  shift 95
-	RSHIFT  shift 96
-	.  reduce 34
-
-
-state 132
-	greater_less_expr : greater_less_expr LT shift_expr .  (35)
-	shift_expr : shift_expr . RSHIFT add_sub_expr
-	shift_expr : shift_expr . LSHIFT add_sub_expr
-
-	LSHIFT  shift 95
-	RSHIFT  shift 96
-	.  reduce 35
-
-
-state 133
-	shift_expr : shift_expr . RSHIFT add_sub_expr
-	shift_expr : shift_expr . LSHIFT add_sub_expr
-	greater_less_expr : greater_less_expr GT shift_expr .  (36)
-
-	LSHIFT  shift 95
-	RSHIFT  shift 96
-	.  reduce 36
-
-
-state 134
-	mul_div_mod_expr : mul_div_mod_expr . '*' unary_expr
-	mul_div_mod_expr : mul_div_mod_expr . '%' unary_expr
-	mul_div_mod_expr : mul_div_mod_expr . '/' unary_expr
-	add_sub_expr : add_sub_expr '+' mul_div_mod_expr .  (41)
-
-	'%'  shift 97
-	'*'  shift 98
-	'/'  shift 99
-	.  reduce 41
-
-
-state 135
-	mul_div_mod_expr : mul_div_mod_expr . '*' unary_expr
-	mul_div_mod_expr : mul_div_mod_expr . '%' unary_expr
-	mul_div_mod_expr : mul_div_mod_expr . '/' unary_expr
-	add_sub_expr : add_sub_expr '-' mul_div_mod_expr .  (42)
-
-	'%'  shift 97
-	'*'  shift 98
-	'/'  shift 99
-	.  reduce 42
-
-
-state 136
-	bit_xor_expr : bit_xor_expr '^' bit_and_expr .  (26)
-	bit_and_expr : bit_and_expr . '&' equal_expr
-
-	'&'  shift 108
-	.  reduce 26
-
-
-state 137
-	bit_or_expr : bit_or_expr . '|' bit_xor_expr
-	and_expr : and_expr AND bit_or_expr .  (22)
-
-	'|'  shift 92
-	.  reduce 22
-
-
-state 138
+state 129
 	bit_and_expr : bit_and_expr '&' equal_expr .  (28)
 	equal_expr : equal_expr . EQ greater_less_expr
 	equal_expr : equal_expr . NE greater_less_expr
 
-	EQ  shift 93
-	NE  shift 94
+	EQ  shift 102
+	NE  shift 103
 	.  reduce 28
+
+
+state 130
+	equal_expr : equal_expr EQ greater_less_expr .  (30)
+	greater_less_expr : greater_less_expr . LE shift_expr
+	greater_less_expr : greater_less_expr . LT shift_expr
+	greater_less_expr : greater_less_expr . GT shift_expr
+	greater_less_expr : greater_less_expr . GE shift_expr
+
+	LE  shift 104
+	GE  shift 105
+	LT  shift 106
+	GT  shift 107
+	.  reduce 30
+
+
+state 131
+	equal_expr : equal_expr NE greater_less_expr .  (31)
+	greater_less_expr : greater_less_expr . LE shift_expr
+	greater_less_expr : greater_less_expr . LT shift_expr
+	greater_less_expr : greater_less_expr . GT shift_expr
+	greater_less_expr : greater_less_expr . GE shift_expr
+
+	LE  shift 104
+	GE  shift 105
+	LT  shift 106
+	GT  shift 107
+	.  reduce 31
+
+
+state 132
+	greater_less_expr : greater_less_expr LE shift_expr .  (33)
+	shift_expr : shift_expr . LSHIFT add_sub_expr
+	shift_expr : shift_expr . RSHIFT add_sub_expr
+
+	LSHIFT  shift 90
+	RSHIFT  shift 91
+	.  reduce 33
+
+
+state 133
+	shift_expr : shift_expr . LSHIFT add_sub_expr
+	shift_expr : shift_expr . RSHIFT add_sub_expr
+	greater_less_expr : greater_less_expr GE shift_expr .  (34)
+
+	LSHIFT  shift 90
+	RSHIFT  shift 91
+	.  reduce 34
+
+
+state 134
+	greater_less_expr : greater_less_expr LT shift_expr .  (35)
+	shift_expr : shift_expr . LSHIFT add_sub_expr
+	shift_expr : shift_expr . RSHIFT add_sub_expr
+
+	LSHIFT  shift 90
+	RSHIFT  shift 91
+	.  reduce 35
+
+
+state 135
+	shift_expr : shift_expr . LSHIFT add_sub_expr
+	greater_less_expr : greater_less_expr GT shift_expr .  (36)
+	shift_expr : shift_expr . RSHIFT add_sub_expr
+
+	LSHIFT  shift 90
+	RSHIFT  shift 91
+	.  reduce 36
+
+
+state 136
+	bit_or_expr : bit_or_expr '|' bit_xor_expr .  (24)
+	bit_xor_expr : bit_xor_expr . '^' bit_and_expr
+
+	'^'  shift 110
+	.  reduce 24
+
+
+state 137
+	and_expr : and_expr AND bit_or_expr .  (22)
+	bit_or_expr : bit_or_expr . '|' bit_xor_expr
+
+	'|'  shift 108
+	.  reduce 22
+
+
+state 138
+	bit_and_expr : bit_and_expr . '&' equal_expr
+	bit_xor_expr : bit_xor_expr '^' bit_and_expr .  (26)
+
+	'&'  shift 101
+	.  reduce 26
 
 
 state 139
@@ -1930,35 +1930,35 @@ state 139
 	CHARVAL  shift 39
 	ID  shift 40
 
-	or_expr  goto 42
-	expr  goto 43
+	ternary_expr  goto 42
+	or_expr  goto 43
 	compound_stmt  goto 44
-	assign_expr  goto 45
-	const_expr  goto 46
-	ternary_expr  goto 47
-	unary_op  goto 48
-	bit_or_expr  goto 49
-	equal_expr  goto 50
-	shift_expr  goto 51
-	mul_div_mod_expr  goto 52
-	greater_less_expr  goto 53
-	add_sub_expr  goto 54
-	bit_xor_expr  goto 55
-	and_expr  goto 56
-	bit_and_expr  goto 57
-	unary_expr  goto 58
-	expr_stmt  goto 59
-	conditional_stmt  goto 60
-	val  goto 61
-	loop_stmt  goto 62
-	postfix_expr  goto 63
-	basic_expr  goto 64
+	expr  goto 45
+	assign_expr  goto 46
+	const_expr  goto 47
+	basic_expr  goto 48
+	shift_expr  goto 49
 	stmt  goto 143
+	conditional_stmt  goto 51
+	expr_stmt  goto 52
+	unary_op  goto 53
+	add_sub_expr  goto 54
+	loop_stmt  goto 55
+	mul_div_mod_expr  goto 56
+	unary_expr  goto 57
+	val  goto 58
+	postfix_expr  goto 59
+	bit_and_expr  goto 60
+	equal_expr  goto 61
+	greater_less_expr  goto 62
+	bit_or_expr  goto 63
+	and_expr  goto 64
+	bit_xor_expr  goto 65
 
 
 state 140
-	loop_stmt : FOR '(' expr_stmt expr_stmt . ')' stmt
 	loop_stmt : FOR '(' expr_stmt expr_stmt . expr ')' stmt
+	loop_stmt : FOR '(' expr_stmt expr_stmt . ')' stmt
 
 	'!'  shift 25
 	'('  shift 26
@@ -1972,30 +1972,30 @@ state 140
 	CHARVAL  shift 39
 	ID  shift 40
 
-	or_expr  goto 42
+	ternary_expr  goto 42
+	or_expr  goto 43
 	expr  goto 145
-	assign_expr  goto 45
-	const_expr  goto 46
-	ternary_expr  goto 47
-	unary_op  goto 48
-	bit_or_expr  goto 49
-	equal_expr  goto 50
-	shift_expr  goto 51
-	mul_div_mod_expr  goto 52
-	greater_less_expr  goto 53
+	assign_expr  goto 46
+	const_expr  goto 47
+	basic_expr  goto 48
+	shift_expr  goto 49
+	unary_op  goto 53
 	add_sub_expr  goto 54
-	bit_xor_expr  goto 55
-	and_expr  goto 56
-	bit_and_expr  goto 57
-	unary_expr  goto 58
-	val  goto 61
-	postfix_expr  goto 63
-	basic_expr  goto 64
+	mul_div_mod_expr  goto 56
+	unary_expr  goto 57
+	val  goto 58
+	postfix_expr  goto 59
+	bit_and_expr  goto 60
+	equal_expr  goto 61
+	greater_less_expr  goto 62
+	bit_or_expr  goto 63
+	and_expr  goto 64
+	bit_xor_expr  goto 65
 
 
 state 141
-	conditional_stmt : IF '(' expr ')' . stmt ELSE stmt
 	conditional_stmt : IF '(' expr ')' . stmt
+	conditional_stmt : IF '(' expr ')' . stmt ELSE stmt
 
 	'!'  shift 25
 	'('  shift 26
@@ -2013,30 +2013,30 @@ state 141
 	CHARVAL  shift 39
 	ID  shift 40
 
-	or_expr  goto 42
-	expr  goto 43
+	ternary_expr  goto 42
+	or_expr  goto 43
 	compound_stmt  goto 44
-	assign_expr  goto 45
-	const_expr  goto 46
-	ternary_expr  goto 47
-	unary_op  goto 48
-	bit_or_expr  goto 49
-	equal_expr  goto 50
-	shift_expr  goto 51
-	mul_div_mod_expr  goto 52
-	greater_less_expr  goto 53
-	add_sub_expr  goto 54
-	bit_xor_expr  goto 55
-	and_expr  goto 56
-	bit_and_expr  goto 57
-	unary_expr  goto 58
-	expr_stmt  goto 59
-	conditional_stmt  goto 60
-	val  goto 61
-	loop_stmt  goto 62
-	postfix_expr  goto 63
-	basic_expr  goto 64
+	expr  goto 45
+	assign_expr  goto 46
+	const_expr  goto 47
+	basic_expr  goto 48
+	shift_expr  goto 49
 	stmt  goto 146
+	conditional_stmt  goto 51
+	expr_stmt  goto 52
+	unary_op  goto 53
+	add_sub_expr  goto 54
+	loop_stmt  goto 55
+	mul_div_mod_expr  goto 56
+	unary_expr  goto 57
+	val  goto 58
+	postfix_expr  goto 59
+	bit_and_expr  goto 60
+	equal_expr  goto 61
+	greater_less_expr  goto 62
+	bit_or_expr  goto 63
+	and_expr  goto 64
+	bit_xor_expr  goto 65
 
 
 state 142
@@ -2051,24 +2051,24 @@ state 142
 	DEC  shift 37
 	INTVAL  shift 38
 	CHARVAL  shift 39
-	ID  shift 90
+	ID  shift 92
 
-	or_expr  goto 42
 	ternary_expr  goto 147
-	unary_op  goto 48
-	bit_or_expr  goto 49
-	equal_expr  goto 50
-	shift_expr  goto 51
-	mul_div_mod_expr  goto 52
-	greater_less_expr  goto 53
+	or_expr  goto 43
+	basic_expr  goto 48
+	shift_expr  goto 49
+	unary_op  goto 53
 	add_sub_expr  goto 54
-	bit_xor_expr  goto 55
-	and_expr  goto 56
-	bit_and_expr  goto 57
-	unary_expr  goto 58
-	val  goto 61
-	postfix_expr  goto 63
-	basic_expr  goto 64
+	mul_div_mod_expr  goto 56
+	unary_expr  goto 57
+	val  goto 58
+	postfix_expr  goto 59
+	bit_and_expr  goto 60
+	equal_expr  goto 61
+	greater_less_expr  goto 62
+	bit_or_expr  goto 63
+	and_expr  goto 64
+	bit_xor_expr  goto 65
 
 
 state 143
@@ -2096,30 +2096,30 @@ state 144
 	CHARVAL  shift 39
 	ID  shift 40
 
-	or_expr  goto 42
-	expr  goto 43
+	ternary_expr  goto 42
+	or_expr  goto 43
 	compound_stmt  goto 44
-	assign_expr  goto 45
-	const_expr  goto 46
-	ternary_expr  goto 47
-	unary_op  goto 48
-	bit_or_expr  goto 49
-	equal_expr  goto 50
-	shift_expr  goto 51
-	mul_div_mod_expr  goto 52
-	greater_less_expr  goto 53
-	add_sub_expr  goto 54
-	bit_xor_expr  goto 55
-	and_expr  goto 56
-	bit_and_expr  goto 57
-	unary_expr  goto 58
-	expr_stmt  goto 59
-	conditional_stmt  goto 60
-	val  goto 61
-	loop_stmt  goto 62
-	postfix_expr  goto 63
-	basic_expr  goto 64
+	expr  goto 45
+	assign_expr  goto 46
+	const_expr  goto 47
+	basic_expr  goto 48
+	shift_expr  goto 49
 	stmt  goto 148
+	conditional_stmt  goto 51
+	expr_stmt  goto 52
+	unary_op  goto 53
+	add_sub_expr  goto 54
+	loop_stmt  goto 55
+	mul_div_mod_expr  goto 56
+	unary_expr  goto 57
+	val  goto 58
+	postfix_expr  goto 59
+	bit_and_expr  goto 60
+	equal_expr  goto 61
+	greater_less_expr  goto 62
+	bit_or_expr  goto 63
+	and_expr  goto 64
+	bit_xor_expr  goto 65
 
 
 state 145
@@ -2131,8 +2131,8 @@ state 145
 
 
 state 146
-	conditional_stmt : IF '(' expr ')' stmt . ELSE stmt
 	conditional_stmt : IF '(' expr ')' stmt .  (90)
+	conditional_stmt : IF '(' expr ')' stmt . ELSE stmt
 
 	ELSE  shift 150
 	.  reduce 90
@@ -2169,30 +2169,30 @@ state 149
 	CHARVAL  shift 39
 	ID  shift 40
 
-	or_expr  goto 42
-	expr  goto 43
+	ternary_expr  goto 42
+	or_expr  goto 43
 	compound_stmt  goto 44
-	assign_expr  goto 45
-	const_expr  goto 46
-	ternary_expr  goto 47
-	unary_op  goto 48
-	bit_or_expr  goto 49
-	equal_expr  goto 50
-	shift_expr  goto 51
-	mul_div_mod_expr  goto 52
-	greater_less_expr  goto 53
-	add_sub_expr  goto 54
-	bit_xor_expr  goto 55
-	and_expr  goto 56
-	bit_and_expr  goto 57
-	unary_expr  goto 58
-	expr_stmt  goto 59
-	conditional_stmt  goto 60
-	val  goto 61
-	loop_stmt  goto 62
-	postfix_expr  goto 63
-	basic_expr  goto 64
+	expr  goto 45
+	assign_expr  goto 46
+	const_expr  goto 47
+	basic_expr  goto 48
+	shift_expr  goto 49
 	stmt  goto 151
+	conditional_stmt  goto 51
+	expr_stmt  goto 52
+	unary_op  goto 53
+	add_sub_expr  goto 54
+	loop_stmt  goto 55
+	mul_div_mod_expr  goto 56
+	unary_expr  goto 57
+	val  goto 58
+	postfix_expr  goto 59
+	bit_and_expr  goto 60
+	equal_expr  goto 61
+	greater_less_expr  goto 62
+	bit_or_expr  goto 63
+	and_expr  goto 64
+	bit_xor_expr  goto 65
 
 
 state 150
@@ -2214,30 +2214,30 @@ state 150
 	CHARVAL  shift 39
 	ID  shift 40
 
-	or_expr  goto 42
-	expr  goto 43
+	ternary_expr  goto 42
+	or_expr  goto 43
 	compound_stmt  goto 44
-	assign_expr  goto 45
-	const_expr  goto 46
-	ternary_expr  goto 47
-	unary_op  goto 48
-	bit_or_expr  goto 49
-	equal_expr  goto 50
-	shift_expr  goto 51
-	mul_div_mod_expr  goto 52
-	greater_less_expr  goto 53
-	add_sub_expr  goto 54
-	bit_xor_expr  goto 55
-	and_expr  goto 56
-	bit_and_expr  goto 57
-	unary_expr  goto 58
-	expr_stmt  goto 59
-	conditional_stmt  goto 60
-	val  goto 61
-	loop_stmt  goto 62
-	postfix_expr  goto 63
-	basic_expr  goto 64
+	expr  goto 45
+	assign_expr  goto 46
+	const_expr  goto 47
+	basic_expr  goto 48
+	shift_expr  goto 49
 	stmt  goto 152
+	conditional_stmt  goto 51
+	expr_stmt  goto 52
+	unary_op  goto 53
+	add_sub_expr  goto 54
+	loop_stmt  goto 55
+	mul_div_mod_expr  goto 56
+	unary_expr  goto 57
+	val  goto 58
+	postfix_expr  goto 59
+	bit_and_expr  goto 60
+	equal_expr  goto 61
+	greater_less_expr  goto 62
+	bit_or_expr  goto 63
+	and_expr  goto 64
+	bit_xor_expr  goto 65
 
 
 state 151

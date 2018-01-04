@@ -1,12 +1,12 @@
 [Application]
-WindowPlacement=2 3 -1 -1 -1 -1 86 166 1238 745
+WindowPlacement=2 3 -1 -1 -1 -1 69 133 1221 712
 [Editor1]
 FileName=.\myparser.y
 ReadOnly=0
 WindowPlacement1=0 1 -1 -1 -1 -1 81 23 628 702
 WindowOrder1=2
 Position001=0 33
-Cursor001=0 8 0 8
+Cursor001=0 33 0 33
 SyntaxColouring=2
 TargetSyntaxColouring=3
 [Editor2]
@@ -15,11 +15,11 @@ ReadOnly=0
 WindowPlacement1=0 1 -1 -1 -1 -1 656 22 1397 703
 WindowOrder1=3
 Position001=0 91
-Cursor001=14 93 14 93
+Cursor001=31 107 31 107
 SyntaxColouring=1
 TargetSyntaxColouring=3
 [Output]
-WindowPlacement1=0 1 -1 -1 -1 -1 130 130 1734 762
+WindowPlacement1=0 1 -1 -1 -1 -1 104 104 1708 736
 WindowOrder1=1
 Position1=0 1
-Cursor1=0 6 0 6
+Cursor1=0 5 0 5

@@ -20,6 +20,8 @@ void declInsertEntry(Node * var_id, NodeValType val_type) {
 	if (var_id->type == idt_t) {
 		var_id->entry = new SymbolEntry(val_type, var_st);
 		var_id->table->insert(string(var_id->data.string_v), var_id->entry);
+		var_id->index = var_count++;
+		var_id->val_type = val_type;
 		return;
 	}
 	for (unsigned int i = 0; i < var_id->children.size(); ++i) {
@@ -27,9 +29,9 @@ void declInsertEntry(Node * var_id, NodeValType val_type) {
 	}
 }
 
-void funcInsertEntry() {
-	curr_table->insert("main", new SymbolEntry(int_vt, function_st));
-}
+// void funcInsertEntry() {
+// 	curr_table->insert("main", new SymbolEntry(int_vt, function_st));
+// }
 
 void outputTables() {
 	for (auto it: tables) {
@@ -130,14 +132,14 @@ id_list
 // function (main)
 
 func
-	: INT MAIN '(' ')' compound_stmt {$$ = new Node(func_t, new Node(type_t, "integer"), $5); funcInsertEntry();}
-	| MAIN '(' ')' compound_stmt {$$ = new Node(func_t, new Node(type_t, "integer"), $4); funcInsertEntry();}
+	: INT MAIN '(' ')' compound_stmt {$$ = new Node(func_t, new Node(type_t, "integer"), $5);}
+	| MAIN '(' ')' compound_stmt {$$ = new Node(func_t, new Node(type_t, "integer"), $4);}
 	;
 
 // expression
 
 expr
-	: expr ',' assign_expr {$$ = new Node(expr_t, comma_d, $1, $3);}
+	: expr ',' assign_expr {$$ = $1; $$->children.push_back($3);}
 	| assign_expr {$$ = $1;}
 	;
 	
@@ -270,7 +272,7 @@ stmt
 
 loop_stmt
 	: WHILE '(' expr ')' stmt {$$ = new Node(while_stmt_t, $3, $5);}
-	| FOR '(' expr_stmt expr_stmt expr ')' stmt {$$ = new Node(for_stmt_t, $3, $4, $5, $7);}
+	| FOR '(' expr_stmt expr_stmt expr ')' stmt {$$ = new Node(for_stmt_t, $3, $4, $7, $5);}
 	| FOR '(' expr_stmt expr_stmt ')' stmt {$$ = new Node(for_stmt_t, $3, $4, $6);}
 	;
 
@@ -309,14 +311,13 @@ int main()
 {
 	tables.insert({root_table, table_count++});
 	int n = 1;
-	ifstream in("code.c");
-	ofstream out("code.asm");
+	ifstream * in = new ifstream("code.c");
+	ofstream * out = new ofstream("code.asm");
 	mylexer lexer;
 	myparser parser;
 	if (parser.yycreate(&lexer)) {
 		if (lexer.yycreate(&parser)) {
-			lexer.yyin = &in;
-			lexer.yyout = &out;
+			lexer.yyin = in;
 
 			n = parser.yyparse();
 			
@@ -330,12 +331,14 @@ int main()
 			Tree tree(root_node);
 			tree.gen_label();
 
-			root_node->traverse();
-			cout << endl;
+			tree.gen_code(*out);
+
+			// root_node->traverse();
+			// cout << endl;
 		}
 	}
-	in.close();
-	out.close();
-	system("pause");
+	in->close();
+	out->close();
+	// system("pause");
 	return n;
 }

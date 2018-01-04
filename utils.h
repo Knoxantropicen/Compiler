@@ -15,7 +15,6 @@ enum SymbolType {	// category
 };
 
 enum Operator {
-	comma_d,
 	ternary_d,
 	or_d, and_d,
 	bit_or_d, bit_xor_d, bit_and_d,
@@ -69,6 +68,7 @@ private:
 extern SymbolTable * root_table, * curr_table;
 extern unordered_map<SymbolTable *, unsigned int> tables;
 extern unsigned int table_count;
+extern unsigned int var_count;
 
 // grammar tree
 
@@ -82,7 +82,6 @@ enum NodeType {
 	decl_t,
 	idt_list_t,
 	func_t,
-	expr_t,
 	assign_expr_t,
 	logical_expr_t,
 	comp_expr_t,
@@ -137,6 +136,8 @@ public:
 	SymbolTable * table;
 	SymbolEntry * entry;
 	unsigned int row, col;
+	unsigned int index;
+	unsigned int temp;
 
 	Label label;
 };
@@ -160,11 +161,23 @@ public:
 	void gen_label_recr(Node *);
 	void gen_stmt_label(Node *);
 	void gen_expr_label(Node *);
+	char * new_temp(Node *);
+	void gen_code(ofstream &);
 	void gen_header_code(ofstream &);
+	void gen_data_code();
+	void gen_code_recr(Node *);
+	void gen_decl_code(Node *, bool);
+	void gen_label_code(string);
+	void gen_val_code(Node *);
 private:
 	Node * root;
-	int label_cnt;
+	unsigned int label_cnt;
+	unsigned int temp_cnt;
+	unsigned int temp_max;
+	string code_global_v;
+	string code_local_v;
+	string code_main;
+	unordered_map<string, unsigned int> idx_map;
 };
 
 extern Tree tree;
-extern ofstream out;
