@@ -84,6 +84,7 @@ void debug() {
 %nonassoc NO_ELSE
 %nonassoc ELSE
 %token MAIN
+%token INPUT PRINT
 %token ADDASSIGN SUBASSIGN MULASSIGN DIVASSIGN MODASSIGN
 %token ANDASSIGN ORASSIGN XORASSIGN REVASSIGN
 %token LSHIFTASSIGN RSHIFTASSIGN
@@ -153,7 +154,7 @@ const_expr
 	;
 
 ternary_expr
-	: or_expr '?' ternary_expr ':' ternary_expr {$$ = new Node(ternary_expr_t, ternary_d, $1, $2, $3);}
+	: or_expr '?' assign_expr ':' assign_expr {$$ = new Node(ternary_expr_t, ternary_d, $1, $2, $3);}
 	| or_expr {$$ = $1;}
 	;	
 	
@@ -268,6 +269,7 @@ stmt
 	| expr_stmt {$$ = $1;}
 	| compound_stmt {$$ = $1;}
 	| conditional_stmt {if (entered) returnScope(); $$ = $1;}
+	| io_stmt {$$ = $1;}
 	;
 
 loop_stmt
@@ -291,6 +293,11 @@ compound_stmt
 conditional_stmt
 	: IF '(' expr ')' stmt ELSE stmt {$$ = new Node(if_else_stmt_t, $3, $5, $7);}
 	| IF '(' expr ')' stmt %prec NO_ELSE {$$ = new Node(if_stmt_t, $3, $5);}
+	;
+
+io_stmt
+	: INPUT '(' ID ')' ';' {$3->val_type = $3->symbolCheck(string($3->data.string_v))->val_type; $$ = new Node(input_stmt_t, $3);}
+	| PRINT '(' ID ')' ';' {$3->val_type = $3->symbolCheck(string($3->data.string_v))->val_type; $$ = new Node(print_stmt_t, $3);}
 	;
 	
 stmt_list
@@ -321,24 +328,21 @@ int main()
 
 			n = parser.yyparse();
 			
-			// cout << "Grammar Tree:" << endl;
-			// root_node->traverse();
-			// cout << endl;
+			cout << "Grammar Tree:" << endl;
+			root_node->traverse();
+			cout << endl;
 			
-			// outputTables();
-			// cout << endl;
+			outputTables();
+			cout << endl;
 			
 			Tree tree(root_node);
 			tree.gen_label();
 
 			tree.gen_code(*out);
-
-			// root_node->traverse();
-			// cout << endl;
 		}
 	}
 	in->close();
 	out->close();
-	// system("pause");
+	system("pause");
 	return n;
 }

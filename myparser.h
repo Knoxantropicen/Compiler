@@ -18,8 +18,8 @@
 * myparser.h
 * C++ header file generated from myparser.y.
 * 
-* Date: 01/04/18
-* Time: 19:42:15
+* Date: 01/05/18
+* Time: 21:35:05
 * 
 * AYACC Version: 2.07
 ****************************************************************************/
@@ -87,30 +87,32 @@ public:
 #define NO_ELSE 262
 #define ELSE 263
 #define MAIN 264
-#define ADDASSIGN 265
-#define SUBASSIGN 266
-#define MULASSIGN 267
-#define DIVASSIGN 268
-#define MODASSIGN 269
-#define ANDASSIGN 270
-#define ORASSIGN 271
-#define XORASSIGN 272
-#define REVASSIGN 273
-#define LSHIFTASSIGN 274
-#define RSHIFTASSIGN 275
-#define OR 276
-#define AND 277
-#define EQ 278
-#define NE 279
-#define LE 280
-#define GE 281
-#define LT 282
-#define GT 283
-#define INC 284
-#define DEC 285
-#define LSHIFT 286
-#define RSHIFT 287
-#define INTVAL 288
-#define CHARVAL 289
-#define ID 290
+#define INPUT 265
+#define PRINT 266
+#define ADDASSIGN 267
+#define SUBASSIGN 268
+#define MULASSIGN 269
+#define DIVASSIGN 270
+#define MODASSIGN 271
+#define ANDASSIGN 272
+#define ORASSIGN 273
+#define XORASSIGN 274
+#define REVASSIGN 275
+#define LSHIFTASSIGN 276
+#define RSHIFTASSIGN 277
+#define OR 278
+#define AND 279
+#define EQ 280
+#define NE 281
+#define LE 282
+#define GE 283
+#define LT 284
+#define GT 285
+#define INC 286
+#define DEC 287
+#define LSHIFT 288
+#define RSHIFT 289
+#define INTVAL 290
+#define CHARVAL 291
+#define ID 292
 #endif

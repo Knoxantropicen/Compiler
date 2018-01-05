@@ -58,6 +58,8 @@ id 			({letter}|_)+({letter}|{digit}|_)*
 "if"			{moveRight; return IF;}
 "else"			{moveRight; return ELSE;}
 "main"			{moveRight; return MAIN;}
+"input"			{moveRight; return INPUT;}
+"print"			{moveRight; return PRINT;}
 ","				{moveRight; return ',';}
 ":"				{moveRight; return ':';}
 "?"				{moveRight; return '?';}

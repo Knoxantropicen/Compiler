@@ -96,6 +96,8 @@ enum NodeType {
 	if_else_stmt_t,
 	empty_stmt_t,
 	compound_stmt_t,
+	input_stmt_t,
+	print_stmt_t,
 	stmt_list_t,
 };
 
@@ -172,8 +174,10 @@ public:
 private:
 	Node * root;
 	unsigned int label_cnt;
-	unsigned int temp_cnt;
-	unsigned int temp_max;
+	unsigned int temp_int_cnt;
+	unsigned int temp_int_max;
+	unsigned int temp_char_cnt;
+	unsigned int temp_char_max;
 	string code_global_v;
 	string code_local_v;
 	string code_main;

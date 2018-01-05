@@ -281,11 +281,13 @@ unordered_map<NodeType, string> term_table({
 	{empty_stmt_t, "Empty Statement"},
 	{compound_stmt_t, "Compound Statement"},
 	{stmt_list_t, "Statement List"},
+	{input_stmt_t, "Input Statement"},
+	{print_stmt_t, "Print Statement"},
 });
 
 // tree
 
-Tree::Tree(Node * node) : root(node), label_cnt(0), temp_cnt(0), temp_max(0) {
+Tree::Tree(Node * node) : root(node), label_cnt(0), temp_int_cnt(0), temp_int_max(0), temp_char_cnt(0), temp_char_max(0) {
 	code_global_v = "";
 	code_local_v = "";
 	code_main = "";
@@ -393,9 +395,16 @@ void Tree::gen_expr_label(Node * node) {
 
 char * Tree::new_temp(Node * node) {
 	char * temp_idx = new char[10];
-	sprintf(temp_idx, "t%d", ++temp_cnt);
-	temp_max = temp_max > temp_cnt ? temp_max : temp_cnt;
-	node->temp = temp_cnt;
+	if (node->val_type == int_vt) {
+		sprintf(temp_idx, "ti%d", ++temp_int_cnt);
+		temp_int_max = temp_int_max > temp_int_cnt ? temp_int_max : temp_int_cnt;
+		node->temp = temp_int_cnt;
+	}
+	else {
+		sprintf(temp_idx, "tc%d", ++temp_char_cnt);
+		temp_char_max = temp_char_max > temp_char_cnt ? temp_char_max : temp_char_cnt;
+		node->temp = temp_char_cnt;
+	}
 	return temp_idx;
 }
 
@@ -408,7 +417,7 @@ void Tree::gen_code(ofstream & out) {
 	out << "\tcall main" << endl << "\texit" << endl;
 	out << "main proc" << endl;
 	out << code_local_v << code_main;
-	out << "main endp" << endl;
+	out << "\tret\nmain endp" << endl;
 	out << "end " << root->label.begin_lb << endl;
 }
 
@@ -423,18 +432,25 @@ void Tree::gen_header_code(ofstream & out) {
     out << "\tinclude \\masm32\\include\\gdi32.inc" << endl;
     out << "\tinclude \\masm32\\include\\user32.inc" << endl;
     out << "\tinclude \\masm32\\include\\kernel32.inc" << endl;
+    out << "\tinclude \\masm32\\include\\msvcrt.inc" << endl;
     out << "\tincludelib \\masm32\\lib\\masm32.lib" << endl;
     out << "\tincludelib \\masm32\\lib\\gdi32.lib" << endl;
     out << "\tincludelib \\masm32\\lib\\user32.lib" << endl;
     out << "\tincludelib \\masm32\\lib\\kernel32.lib" << endl;
+    out << "\tincludelib \\masm32\\lib\\msvcrt.lib" << endl;
 	out << endl;
 }
 
 void Tree::gen_data_code() {
-	for (unsigned int i = 1; i <= temp_max; ++i) {
-		code_global_v += "\t\tt";
+	for (unsigned int i = 1; i <= temp_int_max; ++i) {
+		code_global_v += "\t\tti";
 		code_global_v += to_string(i);
 		code_global_v += " DWORD 0\n";
+	}
+	for (unsigned int i = 1; i <= temp_char_max; ++i) {
+		code_global_v += "\t\ttc";
+		code_global_v += to_string(i);
+		code_global_v += " BYTE 0\n";
 	}
 }
 
@@ -451,8 +467,7 @@ void Tree::gen_code_recr(Node * node) {
 		gen_decl_code(node, false);
 		return;
 	}
-	for (auto child: node->children)
-		gen_code_recr(child);
+	
 	switch (node->type) {
 		case while_stmt_t: {
 			Node * cond = node->children[0], * stmt = node->children[1];
@@ -503,6 +518,18 @@ void Tree::gen_code_recr(Node * node) {
 			gen_label_code(node->label.next_lb);
 			break;
 		}
+		case input_stmt_t: {
+			code_main += "\tmov ";
+			gen_val_code(node->children[0]);
+			code_main += ", sval(input(\"Input data: \"))\n";
+			break;
+		}
+		case print_stmt_t: {
+			code_main += "\tprint str$(";
+			gen_val_code(node->children[0]);
+			code_main += ")\n\tprint chr$(13,10)\n";
+			break;
+		}
 		case assign_expr_t: {
 			Node * idt = node->children[0], *val = node->children.back();
 			for (unsigned int i = 1; i < node->children.size(); ++i) {
@@ -510,11 +537,11 @@ void Tree::gen_code_recr(Node * node) {
 			}
 			switch (node->data.op_v) {
 				case assign_d: {
-					code_main += "\tmov eax, ";
+					(idt->val_type == int_vt) ? code_main += "\tmov eax, " : code_main += "\tmov al, ";
 					gen_val_code(val);
 					code_main += "\n\tmov ";
 					gen_val_code(idt);
-					code_main += ", eax\n";
+					(idt->val_type == int_vt) ? code_main += ", eax\n" : code_main += ", al\n";
 					break;
 				}
 				case addassign_d: {
@@ -538,7 +565,7 @@ void Tree::gen_code_recr(Node * node) {
 					break;
 				}
 				case mulassign_d: {
-					code_main += "\tmul eax, ";
+					code_main += "\timul eax, ";
 					gen_val_code(idt);
 					code_main += ", ";
 					gen_val_code(val);
@@ -550,7 +577,7 @@ void Tree::gen_code_recr(Node * node) {
 				case divassign_d: {
 					code_main += "\tmov eax, ";
 					gen_val_code(idt);
-					code_main += "\n\tdiv ";
+					code_main += "\n\tidiv ";
 					gen_val_code(val);
 					code_main += "\n\tmov ";
 					gen_val_code(idt);
@@ -560,7 +587,7 @@ void Tree::gen_code_recr(Node * node) {
 				case modassign_d: {
 					code_main += "\tmov eax, ";
 					gen_val_code(idt);
-					code_main += "\n\tdiv ";
+					code_main += "\n\tidiv ";
 					gen_val_code(val);
 					code_main += "\n\tmov ";
 					gen_val_code(idt);
@@ -629,6 +656,11 @@ void Tree::gen_code_recr(Node * node) {
 					break;
 				}
 			}
+			(idt->val_type == int_vt) ? code_main += "\tmov eax, " : code_main += "\tmov al, ";
+			gen_val_code(idt);
+			code_main += "\n\tmov ";
+			code_main += new_temp(node);
+			(idt->val_type == int_vt) ? code_main += ", eax\n" : code_main += ", al\n";
 			break;
 		}
 		case logical_expr_t: {
@@ -640,9 +672,9 @@ void Tree::gen_code_recr(Node * node) {
 		}
 		case comp_expr_t: {
 			Node * val1 = node->children[0], * val2 = node->children[1];
-			code_main += "\tmov eax, ";
+			(val1->val_type == int_vt) ? code_main += "\tmov eax, " : code_main += "\tmov al, ";
 			gen_val_code(val1);
-			code_main += "\n\tcmp eax, ";
+			(val1->val_type == int_vt) ? code_main += "\n\tcmp eax, " : code_main += "\n\tcmp al, ";
 			gen_val_code(val2);
 			code_main += "\n\t";
 			switch (node->data.op_v) {
@@ -672,6 +704,8 @@ void Tree::gen_code_recr(Node * node) {
 			break;
 		}
 		case unary_expr_t: {
+			for (auto child: node->children)
+				gen_code_recr(child);
 			switch (node->data.op_v) {
 				case neg_d: {
 					code_main += "\tmov eax, ";
@@ -712,6 +746,8 @@ void Tree::gen_code_recr(Node * node) {
 			break;
 		}
 		case calc_expr_t: {
+			for (auto child: node->children)
+				gen_code_recr(child);
 			Node * val1 = node->children[0], * val2 = node->children[1];
 			code_main += "\tmov eax, ";
 			gen_val_code(val1);
@@ -775,7 +811,7 @@ void Tree::gen_code_recr(Node * node) {
 					break;
 				}
 				case mul_d: {
-					code_main += "\n\tmul eax, ";
+					code_main += "\n\timul eax, ";
 					gen_val_code(val2);
 					code_main += "\n\tmov ";
 					code_main += new_temp(node);
@@ -783,7 +819,7 @@ void Tree::gen_code_recr(Node * node) {
 					break;
 				}
 				case div_d: {
-					code_main += "\n\tdiv ";
+					code_main += "\n\tidiv ";
 					gen_val_code(val2);
 					code_main += "\n\tmov ";
 					code_main += new_temp(node);
@@ -791,7 +827,7 @@ void Tree::gen_code_recr(Node * node) {
 					break;
 				}
 				case mod_d: {
-					code_main += "\n\tdiv ";
+					code_main += "\n\tidiv ";
 					gen_val_code(val2);
 					code_main += "\n\tmov ";
 					code_main += new_temp(node);
@@ -802,6 +838,8 @@ void Tree::gen_code_recr(Node * node) {
 			break;
 		}
 		case post_expr_t: {
+			for (auto child: node->children)
+				gen_code_recr(child);
 			Node * val = node->children[0], * idt = val;
 			while (idt->type != idt_t) idt = idt->children[0];
 			code_main += "\tmov eax, ";
@@ -816,6 +854,10 @@ void Tree::gen_code_recr(Node * node) {
 			gen_val_code(idt);
 			code_main += "\n";
 			break;
+		}
+		default: {
+			for (auto child: node->children)
+				gen_code_recr(child);
 		}
 	}
 }
@@ -857,9 +899,16 @@ void Tree::gen_label_code(string label) {
 
 void Tree::gen_val_code(Node * node) {
 	if (node->temp != 0) {
-		code_main += "t";
-		code_main += to_string(node->temp);
-		--temp_cnt;
+		if (node->val_type == int_vt) {
+			code_main += "ti";
+			code_main += to_string(node->temp);
+			--temp_int_cnt;
+		}
+		else {
+			code_main += "tc";
+			code_main += to_string(node->temp);
+			--temp_char_cnt;
+		}
 	}
 	else if (node->type == idt_t) {
 		code_main += "$";
@@ -873,6 +922,6 @@ void Tree::gen_val_code(Node * node) {
 	}
 	else {
 		// node->typeError("Error value");
-		node->typeError(to_string(node->type).c_str());
+		node->typeError(to_string(node->children[1]->type).c_str());
 	}
 }

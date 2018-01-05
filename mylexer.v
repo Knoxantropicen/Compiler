@@ -18,8 +18,8 @@
 # mylexer.v
 # Lex verbose file generated from mylexer.l.
 # 
-# Date: 01/04/18
-# Time: 19:42:15
+# Date: 01/05/18
+# Time: 21:35:05
 # 
 # ALex Version: 2.07
 #############################################################################
@@ -53,99 +53,103 @@
 
    12  "main"
 
-   13  ","
+   13  "input"
 
-   14  ":"
+   14  "print"
 
-   15  "?"
+   15  ","
 
-   16  "+="
+   16  ":"
 
-   17  "-="
+   17  "?"
 
-   18  "*="
+   18  "+="
 
-   19  "/="
+   19  "-="
 
-   20  "%="
+   20  "*="
 
-   21  "&="
+   21  "/="
 
-   22  "|="
+   22  "%="
 
-   23  "^="
+   23  "&="
 
-   24  "~="
+   24  "|="
 
-   25  "<<="
+   25  "^="
 
-   26  ">>="
+   26  "~="
 
-   27  "||"
+   27  "<<="
 
-   28  "&&"
+   28  ">>="
 
-   29  "|"
+   29  "||"
 
-   30  "^"
+   30  "&&"
 
-   31  "&"
+   31  "|"
 
-   32  "=="
+   32  "^"
 
-   33  "!="
+   33  "&"
 
-   34  "<="
+   34  "=="
 
-   35  ">="
+   35  "!="
 
-   36  "<<"
+   36  "<="
 
-   37  ">>"
+   37  ">="
 
-   38  "<"
+   38  "<<"
 
-   39  ">"
+   39  ">>"
 
-   40  "++"
+   40  "<"
 
-   41  "--"
+   41  ">"
 
-   42  "+"
+   42  "++"
 
-   43  "-"
+   43  "--"
 
-   44  "*"
+   44  "+"
 
-   45  "/"
+   45  "-"
 
-   46  "%"
+   46  "*"
 
-   47  "!"
+   47  "/"
 
-   48  "~"
+   48  "%"
 
-   49  "{"
+   49  "!"
 
-   50  "}"
+   50  "~"
 
-   51  "("
+   51  "{"
 
-   52  ")"
+   52  "}"
 
-   53  "["
+   53  "("
 
-   54  "]"
+   54  ")"
 
-   55  "="
+   55  "["
 
-   56  ";"
+   56  "]"
 
-   57  [0-9]+
+   57  "="
 
-   58  '([^\\]|\\([abfnrtv\\\'\"0]|[0-8]{1,3}|(x|X)[0-9a-fA-F]{1,2}))'
+   58  ";"
 
-   59  ([a-zA-Z]|_)+([a-zA-Z]|[0-9]|_)*
+   59  [0-9]+
+
+   60  '([^\\]|\\([abfnrtv\\\'\"0]|[0-8]{1,3}|(x|X)[0-9a-fA-F]{1,2}))'
+
+   61  ([a-zA-Z]|_)+([a-zA-Z]|[0-9]|_)*
 
 
 #############################################################################
@@ -190,13 +194,15 @@ state 1
 	0x69               goto 31
 	0x6a - 0x6c (3)    goto 24
 	0x6d               goto 32
-	0x6e - 0x76 (9)    goto 24
-	0x77               goto 33
+	0x6e - 0x6f (2)    goto 24
+	0x70               goto 33
+	0x71 - 0x76 (6)    goto 24
+	0x77               goto 34
 	0x78 - 0x7a (3)    goto 24
-	0x7b               goto 34
-	0x7c               goto 35
-	0x7d               goto 36
-	0x7e               goto 37
+	0x7b               goto 35
+	0x7c               goto 36
+	0x7d               goto 37
+	0x7e               goto 38
 
 
 state 2
@@ -237,13 +243,15 @@ state 2
 	0x69               goto 31
 	0x6a - 0x6c (3)    goto 24
 	0x6d               goto 32
-	0x6e - 0x76 (9)    goto 24
-	0x77               goto 33
+	0x6e - 0x6f (2)    goto 24
+	0x70               goto 33
+	0x71 - 0x76 (6)    goto 24
+	0x77               goto 34
 	0x78 - 0x7a (3)    goto 24
-	0x7b               goto 34
-	0x7c               goto 35
-	0x7d               goto 36
-	0x7e               goto 37
+	0x7b               goto 35
+	0x7c               goto 36
+	0x7d               goto 37
+	0x7e               goto 38
 
 
 state 3
@@ -265,106 +273,106 @@ state 5
 
 
 state 6
-	0x3d               goto 38
+	0x3d               goto 39
 
-	match 47
+	match 49
 
 
 state 7
-	0x3d               goto 39
+	0x3d               goto 40
+
+	match 48
+
+
+state 8
+	0x26               goto 41
+	0x3d               goto 42
+
+	match 33
+
+
+state 9
+	0x00 - 0x5b (92)   goto 43
+	0x5c               goto 44
+	0x5d - 0xff (163)  goto 43
+
+
+state 10
+	match 53
+
+
+state 11
+	match 54
+
+
+state 12
+	0x3d               goto 45
 
 	match 46
 
 
-state 8
-	0x26               goto 40
-	0x3d               goto 41
-
-	match 31
-
-
-state 9
-	0x00 - 0x5b (92)   goto 42
-	0x5c               goto 43
-	0x5d - 0xff (163)  goto 42
-
-
-state 10
-	match 51
-
-
-state 11
-	match 52
-
-
-state 12
-	0x3d               goto 44
+state 13
+	0x2b               goto 46
+	0x3d               goto 47
 
 	match 44
 
 
-state 13
-	0x2b               goto 45
-	0x3d               goto 46
-
-	match 42
-
-
 state 14
-	match 13
+	match 15
 
 
 state 15
-	0x2d               goto 47
-	0x3d               goto 48
+	0x2d               goto 48
+	0x3d               goto 49
 
-	match 43
+	match 45
 
 
 state 16
-	0x2a               goto 49
-	0x2f               goto 50
-	0x3d               goto 51
+	0x2a               goto 50
+	0x2f               goto 51
+	0x3d               goto 52
 
-	match 45
+	match 47
 
 
 state 17
 	0x30 - 0x39 (10)   goto 17
 
-	match 57
+	match 59
 
 
 state 18
-	match 14
+	match 16
 
 
 state 19
-	match 56
+	match 58
 
 
 state 20
-	0x3c               goto 52
-	0x3d               goto 53
+	0x3c               goto 53
+	0x3d               goto 54
 
-	match 38
+	match 40
 
 
 state 21
-	0x3d               goto 54
+	0x3d               goto 55
 
-	match 55
+	match 57
 
 
 state 22
-	0x3d               goto 55
-	0x3e               goto 56
+	0x3d               goto 56
+	0x3e               goto 57
 
-	match 39
+	match 41
 
 
 state 23
-	match 15
+	match 17
 
 
 state 24
@@ -373,21 +381,21 @@ state 24
 	0x5f               goto 24
 	0x61 - 0x7a (26)   goto 24
 
-	match 59
+	match 61
 
 
 state 25
-	match 53
+	match 55
 
 
 state 26
-	match 54
+	match 56
 
 
 state 27
-	0x3d               goto 57
+	0x3d               goto 58
 
-	match 30
+	match 32
 
 
 state 28
@@ -395,10 +403,10 @@ state 28
 	0x41 - 0x5a (26)   goto 24
 	0x5f               goto 24
 	0x61 - 0x67 (7)    goto 24
-	0x68               goto 58
+	0x68               goto 59
 	0x69 - 0x7a (18)   goto 24
 
-	match 59
+	match 61
 
 
 state 29
@@ -406,10 +414,10 @@ state 29
 	0x41 - 0x5a (26)   goto 24
 	0x5f               goto 24
 	0x61 - 0x6b (11)   goto 24
-	0x6c               goto 59
+	0x6c               goto 60
 	0x6d - 0x7a (14)   goto 24
 
-	match 59
+	match 61
 
 
 state 30
@@ -417,10 +425,10 @@ state 30
 	0x41 - 0x5a (26)   goto 24
 	0x5f               goto 24
 	0x61 - 0x6e (14)   goto 24
-	0x6f               goto 60
+	0x6f               goto 61
 	0x70 - 0x7a (11)   goto 24
 
-	match 59
+	match 61
 
 
 state 31
@@ -428,190 +436,201 @@ state 31
 	0x41 - 0x5a (26)   goto 24
 	0x5f               goto 24
 	0x61 - 0x65 (5)    goto 24
-	0x66               goto 61
+	0x66               goto 62
 	0x67 - 0x6d (7)    goto 24
-	0x6e               goto 62
+	0x6e               goto 63
 	0x6f - 0x7a (12)   goto 24
 
-	match 59
+	match 61
 
 
 state 32
 	0x30 - 0x39 (10)   goto 24
 	0x41 - 0x5a (26)   goto 24
 	0x5f               goto 24
-	0x61               goto 63
+	0x61               goto 64
 	0x62 - 0x7a (25)   goto 24
 
-	match 59
+	match 61
 
 
 state 33
 	0x30 - 0x39 (10)   goto 24
 	0x41 - 0x5a (26)   goto 24
 	0x5f               goto 24
-	0x61 - 0x67 (7)    goto 24
-	0x68               goto 64
-	0x69 - 0x7a (18)   goto 24
+	0x61 - 0x71 (17)   goto 24
+	0x72               goto 65
+	0x73 - 0x7a (8)    goto 24
 
-	match 59
+	match 61
 
 
 state 34
-	match 49
+	0x30 - 0x39 (10)   goto 24
+	0x41 - 0x5a (26)   goto 24
+	0x5f               goto 24
+	0x61 - 0x67 (7)    goto 24
+	0x68               goto 66
+	0x69 - 0x7a (18)   goto 24
+
+	match 61
 
 
 state 35
-	0x3d               goto 65
-	0x7c               goto 66
-
-	match 29
+	match 51
 
 
 state 36
-	match 50
+	0x3d               goto 67
+	0x7c               goto 68
+
+	match 31
 
 
 state 37
-	0x3d               goto 67
-
-	match 48
+	match 52
 
 
 state 38
-	match 33
+	0x3d               goto 69
+
+	match 50
 
 
 state 39
-	match 20
+	match 35
 
 
 state 40
-	match 28
+	match 22
 
 
 state 41
-	match 21
+	match 30
 
 
 state 42
-	0x27               goto 68
+	match 23
 
 
 state 43
-	0x22               goto 42
-	0x27               goto 42
-	0x30               goto 69
-	0x31 - 0x38 (8)    goto 69
-	0x58               goto 70
-	0x5c               goto 42
-	0x61 - 0x62 (2)    goto 42
-	0x66               goto 42
-	0x6e               goto 42
-	0x72               goto 42
-	0x74               goto 42
-	0x76               goto 42
-	0x78               goto 70
+	0x27               goto 70
 
 
 state 44
-	match 18
+	0x22               goto 43
+	0x27               goto 43
+	0x30               goto 71
+	0x31 - 0x38 (8)    goto 71
+	0x58               goto 72
+	0x5c               goto 43
+	0x61 - 0x62 (2)    goto 43
+	0x66               goto 43
+	0x6e               goto 43
+	0x72               goto 43
+	0x74               goto 43
+	0x76               goto 43
+	0x78               goto 72
 
 
 state 45
-	match 40
+	match 20
 
 
 state 46
-	match 16
+	match 42
 
 
 state 47
-	match 41
+	match 18
 
 
 state 48
-	match 17
+	match 43
 
 
 state 49
-	0x00 - 0x29 (42)   goto 49
-	0x2a               goto 71
-	0x2b - 0xff (213)  goto 49
+	match 19
 
 
 state 50
-	0x00 - 0x09 (10)   goto 50
-	0x0b - 0xff (245)  goto 50
+	0x00 - 0x29 (42)   goto 50
+	0x2a               goto 73
+	0x2b - 0xff (213)  goto 50
+
+
+state 51
+	0x00 - 0x09 (10)   goto 51
+	0x0b - 0xff (245)  goto 51
 
 	match 4
 
 
-state 51
-	match 19
-
-
 state 52
-	0x3d               goto 72
-
-	match 36
+	match 21
 
 
 state 53
-	match 34
+	0x3d               goto 74
+
+	match 38
 
 
 state 54
-	match 32
+	match 36
 
 
 state 55
-	match 35
+	match 34
 
 
 state 56
-	0x3d               goto 73
-
 	match 37
 
 
 state 57
-	match 23
+	0x3d               goto 75
+
+	match 39
 
 
 state 58
-	0x30 - 0x39 (10)   goto 24
-	0x41 - 0x5a (26)   goto 24
-	0x5f               goto 24
-	0x61               goto 74
-	0x62 - 0x7a (25)   goto 24
-
-	match 59
+	match 25
 
 
 state 59
 	0x30 - 0x39 (10)   goto 24
 	0x41 - 0x5a (26)   goto 24
 	0x5f               goto 24
-	0x61 - 0x72 (18)   goto 24
-	0x73               goto 75
-	0x74 - 0x7a (7)    goto 24
+	0x61               goto 76
+	0x62 - 0x7a (25)   goto 24
 
-	match 59
+	match 61
 
 
 state 60
 	0x30 - 0x39 (10)   goto 24
 	0x41 - 0x5a (26)   goto 24
 	0x5f               goto 24
-	0x61 - 0x71 (17)   goto 24
-	0x72               goto 76
-	0x73 - 0x7a (8)    goto 24
+	0x61 - 0x72 (18)   goto 24
+	0x73               goto 77
+	0x74 - 0x7a (7)    goto 24
 
-	match 59
+	match 61
 
 
 state 61
+	0x30 - 0x39 (10)   goto 24
+	0x41 - 0x5a (26)   goto 24
+	0x5f               goto 24
+	0x61 - 0x71 (17)   goto 24
+	0x72               goto 78
+	0x73 - 0x7a (8)    goto 24
+
+	match 61
+
+
+state 62
 	0x30 - 0x39 (10)   goto 24
 	0x41 - 0x5a (26)   goto 24
 	0x5f               goto 24
@@ -620,26 +639,17 @@ state 61
 	match 10
 
 
-state 62
-	0x30 - 0x39 (10)   goto 24
-	0x41 - 0x5a (26)   goto 24
-	0x5f               goto 24
-	0x61 - 0x73 (19)   goto 24
-	0x74               goto 77
-	0x75 - 0x7a (6)    goto 24
-
-	match 59
-
-
 state 63
 	0x30 - 0x39 (10)   goto 24
 	0x41 - 0x5a (26)   goto 24
 	0x5f               goto 24
-	0x61 - 0x68 (8)    goto 24
-	0x69               goto 78
-	0x6a - 0x7a (17)   goto 24
+	0x61 - 0x6f (15)   goto 24
+	0x70               goto 79
+	0x71 - 0x73 (3)    goto 24
+	0x74               goto 80
+	0x75 - 0x7a (6)    goto 24
 
-	match 59
+	match 61
 
 
 state 64
@@ -647,18 +657,32 @@ state 64
 	0x41 - 0x5a (26)   goto 24
 	0x5f               goto 24
 	0x61 - 0x68 (8)    goto 24
-	0x69               goto 79
+	0x69               goto 81
 	0x6a - 0x7a (17)   goto 24
 
-	match 59
+	match 61
 
 
 state 65
-	match 22
+	0x30 - 0x39 (10)   goto 24
+	0x41 - 0x5a (26)   goto 24
+	0x5f               goto 24
+	0x61 - 0x68 (8)    goto 24
+	0x69               goto 82
+	0x6a - 0x7a (17)   goto 24
+
+	match 61
 
 
 state 66
-	match 27
+	0x30 - 0x39 (10)   goto 24
+	0x41 - 0x5a (26)   goto 24
+	0x5f               goto 24
+	0x61 - 0x68 (8)    goto 24
+	0x69               goto 83
+	0x6a - 0x7a (17)   goto 24
+
+	match 61
 
 
 state 67
@@ -666,57 +690,65 @@ state 67
 
 
 state 68
-	match 58
+	match 29
 
 
 state 69
-	0x27               goto 68
-	0x30 - 0x38 (9)    goto 80
-
-
-state 70
-	0x30 - 0x39 (10)   goto 81
-	0x41 - 0x46 (6)    goto 81
-	0x61 - 0x66 (6)    goto 81
-
-
-state 71
-	0x00 - 0x2e (47)   goto 49
-	0x2f               goto 82
-	0x30 - 0xff (208)  goto 49
-
-
-state 72
-	match 25
-
-
-state 73
 	match 26
 
 
+state 70
+	match 60
+
+
+state 71
+	0x27               goto 70
+	0x30 - 0x38 (9)    goto 84
+
+
+state 72
+	0x30 - 0x39 (10)   goto 85
+	0x41 - 0x46 (6)    goto 85
+	0x61 - 0x66 (6)    goto 85
+
+
+state 73
+	0x00 - 0x2e (47)   goto 50
+	0x2f               goto 86
+	0x30 - 0xff (208)  goto 50
+
+
 state 74
+	match 27
+
+
+state 75
+	match 28
+
+
+state 76
 	0x30 - 0x39 (10)   goto 24
 	0x41 - 0x5a (26)   goto 24
 	0x5f               goto 24
 	0x61 - 0x71 (17)   goto 24
-	0x72               goto 83
+	0x72               goto 87
 	0x73 - 0x7a (8)    goto 24
 
-	match 59
+	match 61
 
 
-state 75
+state 77
 	0x30 - 0x39 (10)   goto 24
 	0x41 - 0x5a (26)   goto 24
 	0x5f               goto 24
 	0x61 - 0x64 (4)    goto 24
-	0x65               goto 84
+	0x65               goto 88
 	0x66 - 0x7a (21)   goto 24
 
-	match 59
+	match 61
 
 
-state 76
+state 78
 	0x30 - 0x39 (10)   goto 24
 	0x41 - 0x5a (26)   goto 24
 	0x5f               goto 24
@@ -725,7 +757,18 @@ state 76
 	match 9
 
 
-state 77
+state 79
+	0x30 - 0x39 (10)   goto 24
+	0x41 - 0x5a (26)   goto 24
+	0x5f               goto 24
+	0x61 - 0x74 (20)   goto 24
+	0x75               goto 89
+	0x76 - 0x7a (5)    goto 24
+
+	match 61
+
+
+state 80
 	0x30 - 0x39 (10)   goto 24
 	0x41 - 0x5a (26)   goto 24
 	0x5f               goto 24
@@ -734,45 +777,56 @@ state 77
 	match 6
 
 
-state 78
+state 81
 	0x30 - 0x39 (10)   goto 24
 	0x41 - 0x5a (26)   goto 24
 	0x5f               goto 24
 	0x61 - 0x6d (13)   goto 24
-	0x6e               goto 85
+	0x6e               goto 90
 	0x6f - 0x7a (12)   goto 24
 
-	match 59
+	match 61
 
 
-state 79
+state 82
+	0x30 - 0x39 (10)   goto 24
+	0x41 - 0x5a (26)   goto 24
+	0x5f               goto 24
+	0x61 - 0x6d (13)   goto 24
+	0x6e               goto 91
+	0x6f - 0x7a (12)   goto 24
+
+	match 61
+
+
+state 83
 	0x30 - 0x39 (10)   goto 24
 	0x41 - 0x5a (26)   goto 24
 	0x5f               goto 24
 	0x61 - 0x6b (11)   goto 24
-	0x6c               goto 86
+	0x6c               goto 92
 	0x6d - 0x7a (14)   goto 24
 
-	match 59
+	match 61
 
 
-state 80
-	0x27               goto 68
-	0x30 - 0x38 (9)    goto 42
+state 84
+	0x27               goto 70
+	0x30 - 0x38 (9)    goto 43
 
 
-state 81
-	0x27               goto 68
-	0x30 - 0x39 (10)   goto 42
-	0x41 - 0x46 (6)    goto 42
-	0x61 - 0x66 (6)    goto 42
+state 85
+	0x27               goto 70
+	0x30 - 0x39 (10)   goto 43
+	0x41 - 0x46 (6)    goto 43
+	0x61 - 0x66 (6)    goto 43
 
 
-state 82
+state 86
 	match 5
 
 
-state 83
+state 87
 	0x30 - 0x39 (10)   goto 24
 	0x41 - 0x5a (26)   goto 24
 	0x5f               goto 24
@@ -781,7 +835,7 @@ state 83
 	match 7
 
 
-state 84
+state 88
 	0x30 - 0x39 (10)   goto 24
 	0x41 - 0x5a (26)   goto 24
 	0x5f               goto 24
@@ -790,7 +844,18 @@ state 84
 	match 11
 
 
-state 85
+state 89
+	0x30 - 0x39 (10)   goto 24
+	0x41 - 0x5a (26)   goto 24
+	0x5f               goto 24
+	0x61 - 0x73 (19)   goto 24
+	0x74               goto 93
+	0x75 - 0x7a (6)    goto 24
+
+	match 61
+
+
+state 90
 	0x30 - 0x39 (10)   goto 24
 	0x41 - 0x5a (26)   goto 24
 	0x5f               goto 24
@@ -799,18 +864,47 @@ state 85
 	match 12
 
 
-state 86
+state 91
+	0x30 - 0x39 (10)   goto 24
+	0x41 - 0x5a (26)   goto 24
+	0x5f               goto 24
+	0x61 - 0x73 (19)   goto 24
+	0x74               goto 94
+	0x75 - 0x7a (6)    goto 24
+
+	match 61
+
+
+state 92
 	0x30 - 0x39 (10)   goto 24
 	0x41 - 0x5a (26)   goto 24
 	0x5f               goto 24
 	0x61 - 0x64 (4)    goto 24
-	0x65               goto 87
+	0x65               goto 95
 	0x66 - 0x7a (21)   goto 24
 
-	match 59
+	match 61
 
 
-state 87
+state 93
+	0x30 - 0x39 (10)   goto 24
+	0x41 - 0x5a (26)   goto 24
+	0x5f               goto 24
+	0x61 - 0x7a (26)   goto 24
+
+	match 13
+
+
+state 94
+	0x30 - 0x39 (10)   goto 24
+	0x41 - 0x5a (26)   goto 24
+	0x5f               goto 24
+	0x61 - 0x7a (26)   goto 24
+
+	match 14
+
+
+state 95
 	0x30 - 0x39 (10)   goto 24
 	0x41 - 0x5a (26)   goto 24
 	0x5f               goto 24
@@ -824,7 +918,7 @@ state 87
 #############################################################################
 
 1 start state(s)
-59 expression(s), 87 state(s)
+61 expression(s), 95 state(s)
 
 
 #############################################################################
